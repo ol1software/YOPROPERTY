@@ -1,0 +1,41 @@
+object fglobal: Tfglobal
+  Left = 0
+  Top = 0
+  Caption = 'Form5'
+  ClientHeight = 480
+  ClientWidth = 640
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  OnCreate = FormCreate
+  DesignerMasterStyle = 0
+  object ImageControl1: TImageControl
+    Position.X = 440.000000000000000000
+    Position.Y = 192.000000000000000000
+    TabOrder = 3
+  end
+  object FDConnection1: TFDConnection
+    ConnectionName = 'c1'
+    Params.Strings = (
+      'Database=C:\OL1\2\CAMION\AND\base1.db'
+      'LockingMode=Normal'
+      'DriverID=SQLite')
+    LoginPrompt = False
+    BeforeConnect = FDConnection1BeforeConnect
+    Left = 48
+    Top = 304
+  end
+  object fdtable1: TFDTable
+    IndexFieldNames = 'idcamion'
+    Connection = FDConnection1
+    UpdateOptions.UpdateTableName = 'camiones'
+    TableName = 'camiones'
+    Left = 48
+    Top = 352
+  end
+  object FDTable2: TFDTable
+    Connection = FDConnection1
+    Left = 96
+    Top = 352
+  end
+end
