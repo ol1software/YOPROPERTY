@@ -32,6 +32,25 @@ type
             end;
 
 
+  // tabla Pisos
+  TPisos= record
+
+    idpiso,
+  anyo,
+  averia,
+  calidad,
+  precio,
+  precioventa,
+  estado, propietario,
+  numerocalle, piso, letra,
+  calidadbarrio, habitaciones, m2 : integer;
+
+  nombrecalle,
+  barrio,
+  modelo,
+  foto,
+  fotosalpicadero: string;
+          end;
 
 
   // tabla Coches
@@ -75,23 +94,34 @@ type
 
 
 
+
+const
+ ciudadesTexto: array  [1..4] of string = ('madrid','barcelona','valencia','malaga');
+
+
 var
   FGlobal1: TFGlobal1;
     coches: array[1..75] of TCoches;
+    pisos: array[1..75] of TPisos;
     gastos: array[1..75] of TGastos;
 
-  days: array[1..7] of string;
+
 
   ruta: string;  // C:\Users\lv1\Desktop\YPROW\
-  rutajpg: string='C:\Users\lv1\Desktop\YPROW\DOC';
-  rutajpgcoches: string='C:\Users\lv1\Desktop\YPROW\DOC\cochesjpg\';
+  rutajpg: string='C:\Users\lv1\Desktop\YPROW\graf';
+  rutajpgcoches: string='C:\Users\lv1\Desktop\YPROW\graf\cochesjpg\';
 
 
+
+  // Variables del Juego
+
+    days: array[1..7] of string;
   idjuego, idciudadactual, dinero, experiencia, power,
   diasemana,   // 1-7 L a D
   ingresoturn, // ingreso y gasto por turno
   gastoturn,
-  numerovehiculos:
+  numerovehiculos,
+  ciudadactual: // 1-madrid, 2-barcelona, 3-valencia, 4-malaga
             integer;
 
   fechajuego: tdatetime;
@@ -249,7 +279,7 @@ begin
   ruta:=ExcludeTrailingPathDelimiter(ExtractFileDir(ExtractFilePath(paramstr(0))));
 ruta:=ExcludeTrailingPathDelimiter( ExtractFileDir(ExtractFilePath(ruta)) );
 ruta:=ExcludeTrailingPathDelimiter( ExtractFileDir(ExtractFilePath(ruta)) )+'\';   // ruta buena
-  rutajpg:=ruta+'DOC\';
+  rutajpg:=ruta+'graf\';
   rutajpgcoches:=ruta+'graf\cochesjpg\';
   fglobal1.FDTable1.Connection.Params.Database:=ruta+'baseY.db';
 end;

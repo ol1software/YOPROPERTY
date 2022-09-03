@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls, Vcl.ToolWin, Vcl.StdCtrls,
   Vcl.Imaging.pngimage, Vcl.ExtCtrls, Vcl.Imaging.jpeg, Vcl.CheckLst, Vcl.Menus,
-  Unit4, Unitvehiculos, Vcl.NumberBox;
+  Unit4, Unitvehiculos, Vcl.NumberBox, Vcl.Buttons;
 
 type
   TForm1 = class(TForm)
@@ -40,7 +40,6 @@ type
     ingresostxt: TStaticText;
     gastostxt: TStaticText;
     Panel2: TPanel;
-    empresatxt: TStaticText;
     dinerotxt: TStaticText;
     diasemanatxt: TStaticText;
     numerodiatxt: TStaticText;
@@ -51,15 +50,25 @@ type
     Image3: TImage;
     ToolButton9: TToolButton;
     ToolButton2: TToolButton;
+    imagenmapa: TImage;
+    empresatxt: TStaticText;
+    ciudadtxt: TStaticText;
+    barraviaja: TTrackBar;
+    botonviaja: TBitBtn;
+    ciudad2: TStaticText;
     procedure ToolButton4Click(Sender: TObject);
 
 
   procedure RellenaPantalla;
         procedure Start;
 
+    procedure Viajar(ciudad: integer);
+
     procedure NewGame1Click(Sender: TObject);
     procedure Cars1Click(Sender: TObject);
     procedure ToolButton1Click(Sender: TObject);
+    procedure barraviajaChange(Sender: TObject);
+    procedure botonviajaClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -238,8 +247,8 @@ Turno:=1;
 diasemana:=0;
 fechajuego:=StrtoDate('01/01/2007');
 
-
-dinero:=180000;
+// se empieza con 10.000 €
+dinero:=10000;
 
 
 global1.InicializaVariables;
@@ -250,15 +259,21 @@ global1.CargarVehiculos;
 nomempresa:=InputBox('Nombre de tu empresa', 'Prompt', 'Enterprise');
 
 
+ciudadactual:=2; // 1-madrid, 2-barcelona, 3-valencia, 4-malaga
 
+
+
+// Pasa una parte del turno (1 día)
 PasaTurnoP;
 
 
 contenedor1.Visible:=true;
 toolbar1.Enabled:=true;
 
-RellenaPantalla;
 
+RellenaPantalla;
+// SE RELLENA LA PANTALLA, Y SE ESPERA A LAS ACCIONES DEL USUARIO PARA:
+// 1- COMPRAR/VENDER/INVERTIR
 
 
 
@@ -281,24 +296,34 @@ end;      // END START
   procedure TForm1.RellenaPantalla;
   begin
 
+  // de 1 a 7
   barraturno.Position:=diasemana;
 
-
+ // nombre de la empresa
   empresatxt.Caption :=nomempresa;
 
 
+  // dinero
 dinerotxt.Caption:=CurrtoStrF(dinero,ffCurrency, 0 );
 
+// ingresos y gastos
 ingresostxt.Caption:=CurrtoStrF(ingresoturn,ffCurrency, 0 );
 gastostxt.Caption:=CurrtoStrF(gastoturn,ffCurrency, 0 );
 
 // calendarios
 calendario.Date:=global1.fechajuego;
 datetimepicker1.DateTime:=global1.fechajuego;
+
 // fecha en texto
 diasemanatxt.Caption :=diasemanastr;
 numerodiatxt.Caption:=numdiastr;
 mestxt.Caption:=messtr;
+
+// ciudad actual
+ciudadtxt.Caption:=ciudadestexto[ciudadactual];
+barraviaja.Position:=ciudadactual;
+imagenmapa.Picture.LoadFromFile(rutajpg+'mapa'+inttostr(ciudadactual)+'.jpg');
+
 
 
 
@@ -306,6 +331,34 @@ mestxt.Caption:=messtr;
   end;
 
 
+
+
+  (*
+            Viaja a la ciudad indicada
+            -------
+*)
+    procedure TForm1.Viajar(ciudad: integer);
+      begin
+     ciudadactual:=ciudad;
+     form1.RellenaPantalla;
+
+      end;
+
+
+
+
+
+  procedure TForm1.barraviajaChange(Sender: TObject);
+begin
+
+ciudad2.Caption:=ciudadestexto[barraviaja.Position];
+
+end;
+
+procedure TForm1.botonviajaClick(Sender: TObject);
+begin
+if barraviaja.Position<>ciudadactual then Viajar(barraviaja.Position);
+end;
 
 procedure TForm1.Cars1Click(Sender: TObject);
 begin
