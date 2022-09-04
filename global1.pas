@@ -97,7 +97,8 @@ type
 
 const
  ciudadesTexto: array  [1..4] of string = ('madrid','barcelona','valencia','malaga');
-
+  // expresa si tiene piso en la ciudad (1-4)
+ alojamientociudad:array  [1..4] of integer =(0,0,0,0);
 
 var
   FGlobal1: TFGlobal1;
@@ -121,7 +122,8 @@ var
   ingresoturn, // ingreso y gasto por turno
   gastoturn,
   numerovehiculos,
-  ciudadactual: // 1-madrid, 2-barcelona, 3-valencia, 4-malaga
+  ciudadactual:      // 1-madrid, 2-barcelona, 3-valencia, 4-malaga
+
             integer;
 
   fechajuego: tdatetime;
@@ -129,7 +131,7 @@ var
   nomjugador, nomempresa, hora: string;
 
   // Cada TURNO esta formado por 7 TurnoParte
-  TurnoParte1, Turno: integer;
+  TurnoParte1, Turno, i: integer;
 
 
 
@@ -213,9 +215,28 @@ ingresoturn:=ingresoturn+ran;
 end;
 
 
+(*
+Aloja al jugador en un hotel, o en piso (si dispone de él)
+ Aquí se van:
+ - restando el coste del hotel
+ -- se utiliza alojamientociudad
+*)
+procedure Alojamiento(city: integer);
+begin
+     if alojamientociudad[city]=0 then
+                     begin
+  i:=Random(100)+50;
+  ShowMessage('No tienes piso en la ciudad, gastas en Hotel '+inttostr(i)+'euros');
+                     end else
+   ShowMessage('Llegas a tu piso');
+
+                     gastoturn:=gastoturn+i;
+end;
+
+
 
 (*
- Cuenta una parte dentro del Turno 1 semana L-D (7 partes)
+ Pasa una parte dentro del Turno 1 semanal L-D (7 partes)
  Aquí se van:
  - sumando beneficios y gastos
 *)
@@ -225,12 +246,15 @@ begin
 //Showmessage(inttostr(fechajuego.DayOfTheWeek));
    diasemana:=diasemana+1;
 
-   if fechajuego.DayOfTheWeek=7 then PasaTurno // si es domingo, pasa turno
+   if fechajuego.DayOfTheWeek=7 then PasaTurno // si es domingo, pasa turno semanal
                                 else
           fechajuego := fechajuego+1; // si no pasa, sigue otro dia
 
 
 DecodificaFecha(fechajuego);
+
+Alojamiento(ciudadactual);
+
 
 
 
@@ -301,6 +325,8 @@ end;
      dinero:=dinero-coches[id].precio;
      GuardaVehiculo(id);
      ShowMessage('comprado');
+
+     PasaTurnoP;
 
 
 

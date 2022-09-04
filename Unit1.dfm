@@ -106,7 +106,6 @@ object Form1: TForm1
         Height = 437
         Align = alClient
         TabOrder = 0
-        ExplicitTop = -2
         object Image1: TImage
           Left = 3
           Top = 79
@@ -12532,8 +12531,6 @@ object Form1: TForm1
             ParentFont = False
             TabOrder = 5
             Transparent = False
-            ExplicitLeft = 446
-            ExplicitTop = 33
           end
         end
         object ciudadtxt: TStaticText
@@ -12611,7 +12608,6 @@ object Form1: TForm1
           'TRABAJO'
           'EVENTO')
         TabIndex = 0
-        ExplicitTop = -2
       end
     end
   end

@@ -307,8 +307,8 @@ end;      // END START
 dinerotxt.Caption:=CurrtoStrF(dinero,ffCurrency, 0 );
 
 // ingresos y gastos
-ingresostxt.Caption:=CurrtoStrF(ingresoturn,ffCurrency, 0 );
-gastostxt.Caption:=CurrtoStrF(gastoturn,ffCurrency, 0 );
+ingresostxt.Caption:=CurrtoStrF(ingresoturn-gastoturn,ffCurrency, 0 );
+//gastostxt.Caption:=CurrtoStrF(gastoturn,ffCurrency, 0 );
 
 // calendarios
 calendario.Date:=global1.fechajuego;
@@ -338,8 +338,18 @@ imagenmapa.Picture.LoadFromFile(rutajpg+'mapa'+inttostr(ciudadactual)+'.jpg');
             -------
 *)
     procedure TForm1.Viajar(ciudad: integer);
+    var
+    i: integer;
       begin
+      ShowMessage('Viajando a ... '+ciudadestexto[ciudad]);
      ciudadactual:=ciudad;
+
+     i:=Random(100);
+     ShowMessage('Gastaste '+inttostr(i)+'euros en AVE');
+
+     gastoturn:=gastoturn+i;
+
+     PasaTurnoP;
      form1.RellenaPantalla;
 
       end;

@@ -273,7 +273,7 @@ var
 i: integer;
 begin
 
-PasaTurnoP;
+//PasaTurnoP;
 idactual:=1;
 
  CargaVehiculos(1);
