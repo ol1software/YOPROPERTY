@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls, Vcl.ToolWin, Vcl.StdCtrls,
   Vcl.Imaging.pngimage, Vcl.ExtCtrls, Vcl.Imaging.jpeg, Vcl.CheckLst, Vcl.Menus,
-  Unit4, Unitvehiculos, Vcl.NumberBox, Vcl.Buttons;
+  Unitvehiculos, Vcl.NumberBox, Vcl.Buttons;
 
 type
   TForm1 = class(TForm)
@@ -56,6 +56,9 @@ type
     barraviaja: TTrackBar;
     botonviaja: TBitBtn;
     ciudad2: TStaticText;
+    menu1: TMenuItem;
+    Memoingresos: TMemo;
+    Memogastos: TMemo;
     procedure ToolButton4Click(Sender: TObject);
 
 
@@ -69,6 +72,8 @@ type
     procedure ToolButton1Click(Sender: TObject);
     procedure barraviajaChange(Sender: TObject);
     procedure botonviajaClick(Sender: TObject);
+    procedure menu1Click(Sender: TObject);
+    procedure ToolButton6Click(Sender: TObject);
 
   private
     { Private declarations }
@@ -206,7 +211,7 @@ implementation
 
 {$R *.dfm}
 
-uses Unit2, UnitZero, global1, UnitBUY;
+uses Unit2, UnitZero, global1, UnitBUY, Unit8, Unit10;
 
 // NUEVO JUEGO BTN
 // *********************************************
@@ -245,14 +250,14 @@ begin
 Turno:=1;
 // al comenzar, se añade un dia
 diasemana:=0;
-fechajuego:=StrtoDate('01/01/2007');
+fechajuego:=StrtoDate('29/01/2007');
 
 // se empieza con 10.000 €
 dinero:=10000;
 
 
 global1.InicializaVariables;
-global1.CargarVehiculos;
+global1.CargarBases;
 
 // fin variables
 
@@ -260,7 +265,7 @@ nomempresa:=InputBox('Nombre de tu empresa', 'Prompt', 'Enterprise');
 
 
 ciudadactual:=2; // 1-madrid, 2-barcelona, 3-valencia, 4-malaga
-
+sueldoactual:=dimesueldo;
 
 
 // Pasa una parte del turno (1 día)
@@ -307,8 +312,16 @@ end;      // END START
 dinerotxt.Caption:=CurrtoStrF(dinero,ffCurrency, 0 );
 
 // ingresos y gastos
-ingresostxt.Caption:=CurrtoStrF(ingresoturn-gastoturn,ffCurrency, 0 );
-//gastostxt.Caption:=CurrtoStrF(gastoturn,ffCurrency, 0 );
+if ingresoturn<>0 then begin
+    memoingresos.Lines.Add(inttostr(ingresoturn));
+    ingresostxt.Caption:=CurrtoStrF(ingresoturn,ffCurrency, 0 );
+                       end;
+
+if gastoturn<>0 then begin
+      memogastos.Lines.Add(inttostr(gastoturn));
+      gastostxt.Caption:=CurrtoStrF(gastoturn,ffCurrency, 0 );
+                      end;
+
 
 // calendarios
 calendario.Date:=global1.fechajuego;
@@ -324,6 +337,8 @@ ciudadtxt.Caption:=ciudadestexto[ciudadactual];
 barraviaja.Position:=ciudadactual;
 imagenmapa.Picture.LoadFromFile(rutajpg+'mapa'+inttostr(ciudadactual)+'.jpg');
 
+ingresoturn:=0;
+gastoturn:=0;
 
 
 
@@ -377,7 +392,12 @@ end;
 
 
 
-  (*
+  procedure TForm1.menu1Click(Sender: TObject);
+begin
+formvarios.showmodal;
+end;
+
+(*
   buy
   *)
 procedure TForm1.ToolButton1Click(Sender: TObject);
@@ -393,6 +413,11 @@ begin
 PasaTurnoP;
 RellenaPantalla;
   //listaturno.Items[1].checked:=true;
+end;
+
+procedure TForm1.ToolButton6Click(Sender: TObject);
+begin
+formbiz.showmodal;
 end;
 
 end.

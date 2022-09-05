@@ -109,14 +109,6 @@
             <Form>Form1</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="Unit3.pas">
-            <Form>formjuego</Form>
-            <FormType>fmx</FormType>
-        </DCCReference>
-        <DCCReference Include="Unit4.pas">
-            <Form>formcamiones</Form>
-            <FormType>fmx</FormType>
-        </DCCReference>
         <DCCReference Include="Unit5.pas"/>
         <DCCReference Include="Unit6.pas">
             <Form>formbanco</Form>
@@ -135,7 +127,7 @@
             <FormType>fmx</FormType>
         </DCCReference>
         <DCCReference Include="Unit10.pas">
-            <Form>formconductores</Form>
+            <Form>formbiz</Form>
             <FormType>fmx</FormType>
         </DCCReference>
         <DCCReference Include="UnitZero.pas">

@@ -6,7 +6,7 @@ uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Edit,
   FMX.Controls.Presentation, FMX.StdCtrls, System.Rtti, FMX.Grid, FMX.Layouts,
-  FMX.TabControl, FMX.Menus;
+  FMX.TabControl, FMX.Menus, FMX.Grid.Style, FMX.ScrollBox;
 
 type
   Tformviajes = class(TForm)
@@ -83,7 +83,6 @@ type
     procedure ImageControl2Click(Sender: TObject);
 
     procedure CargaGrids;
-    procedure redClick(Sender: TObject);
     procedure ImageControl1Click(Sender: TObject);
     procedure TabControl1Change(Sender: TObject);
 
@@ -230,11 +229,6 @@ if idviaje>1 then
 
 
 
-end;
-
-procedure Tformviajes.redClick(Sender: TObject);
-begin
-formconductores.show;
 end;
 
 procedure Tformviajes.StringGrid1SelectCell(Sender: TObject; const ACol,

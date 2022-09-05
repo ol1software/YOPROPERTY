@@ -109,7 +109,7 @@ procedure Tformvehiculos.FormShow(Sender: TObject);
 begin
 
 PasaTurnoP;
-global1.CargarVehiculos;
+//global1.CargarVehiculos;
 
 label1.Caption:=Inttostr(coches[1].idcoche);
 

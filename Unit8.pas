@@ -11,15 +11,8 @@ type
   Tformvarios = class(TForm)
     ImageControl1: TImageControl;
     ImageControl5: TImageControl;
-    tmodelo: TEdit;
-    Label1: TLabel;
-    tpma: TEdit;
-    Label2: TLabel;
-    tl100: TEdit;
-    Label3: TLabel;
     izquierda1: TImageControl;
     derecha1: TImageControl;
-    ImageControl2: TImageControl;
     Button1: TButton;
     Button2: TButton;
     Button3: TButton;

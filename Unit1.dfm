@@ -2,7 +2,7 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'YPRO'
-  ClientHeight = 515
+  ClientHeight = 514
   ClientWidth = 624
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -38,33 +38,33 @@ object Form1: TForm1
       Caption = 'WORK>'
       ImageIndex = 4
     end
-    object ToolButton6: TToolButton
+    object ToolButton3: TToolButton
       Left = 116
       Top = 0
-      Caption = 'HOUSES'
-      Enabled = False
+      Caption = 'PROPS'
+      ImageIndex = 2
+    end
+    object ToolButton6: TToolButton
+      Left = 174
+      Top = 0
+      Caption = 'MY BIZ'
       ImageIndex = 5
+      OnClick = ToolButton6Click
     end
     object ToolButton7: TToolButton
-      Left = 174
+      Left = 232
       Top = 0
       Caption = 'CARS'
       Enabled = False
       ImageIndex = 6
     end
     object ToolButton2: TToolButton
-      Left = 232
+      Left = 290
       Top = 0
       Width = 31
       Caption = 'ToolButton2'
       ImageIndex = 4
       Style = tbsSeparator
-    end
-    object ToolButton3: TToolButton
-      Left = 263
-      Top = 0
-      Caption = 'PROPS'
-      ImageIndex = 2
     end
     object ToolButton8: TToolButton
       Left = 321
@@ -83,7 +83,7 @@ object Form1: TForm1
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 496
+    Top = 495
     Width = 624
     Height = 19
     Panels = <>
@@ -92,7 +92,7 @@ object Form1: TForm1
     Left = 0
     Top = 29
     Width = 624
-    Height = 467
+    Height = 466
     ActivePage = TabSheet1
     Align = alClient
     TabOrder = 2
@@ -103,7 +103,7 @@ object Form1: TForm1
         Left = 0
         Top = 0
         Width = 616
-        Height = 437
+        Height = 436
         Align = alClient
         TabOrder = 0
         object Image1: TImage
@@ -1614,12 +1614,11 @@ object Form1: TForm1
           Caption = 'iNGRESOS +'
         end
         object l2: TLabel
-          Left = 557
-          Top = 380
+          Left = 357
+          Top = 80
           Width = 50
           Height = 15
           Caption = 'GASTOS -'
-          Visible = False
         end
         object imagenmapa: TImage
           Left = 11
@@ -6772,9 +6771,9 @@ object Form1: TForm1
         object ingresostxt: TStaticText
           Left = 271
           Top = 101
-          Width = 61
+          Width = 14
           Height = 34
-          Caption = '1.500'
+          Caption = '-'
           Font.Charset = ANSI_CHARSET
           Font.Color = clWindowText
           Font.Height = -24
@@ -6784,8 +6783,8 @@ object Form1: TForm1
           TabOrder = 2
         end
         object gastostxt: TStaticText
-          Left = 562
-          Top = 401
+          Left = 362
+          Top = 101
           Width = 45
           Height = 34
           Caption = '800'
@@ -6796,7 +6795,6 @@ object Form1: TForm1
           Font.Style = []
           ParentFont = False
           TabOrder = 3
-          Visible = False
         end
         object Panel2: TPanel
           Left = 1
@@ -12587,6 +12585,20 @@ object Form1: TForm1
           TabOrder = 8
           Transparent = False
         end
+        object Memoingresos: TMemo
+          Left = 425
+          Top = 345
+          Width = 73
+          Height = 89
+          TabOrder = 9
+        end
+        object Memogastos: TMemo
+          Left = 504
+          Top = 345
+          Width = 73
+          Height = 89
+          TabOrder = 10
+        end
       end
     end
     object TabSheet2: TTabSheet
@@ -12596,7 +12608,7 @@ object Form1: TForm1
         Left = 0
         Top = 0
         Width = 616
-        Height = 437
+        Height = 436
         Align = alClient
         TabOrder = 0
         Tabs.Strings = (
@@ -12639,6 +12651,10 @@ object Form1: TForm1
       object Other1: TMenuItem
         Caption = 'Other'
       end
+    end
+    object menu1: TMenuItem
+      Caption = 'menu'
+      OnClick = menu1Click
     end
   end
 end

@@ -135,7 +135,7 @@ object formcompras: Tformcompras
   end
   object Button1: TButton
     Left = 53
-    Top = 230
+    Top = 239
     Width = 75
     Height = 25
     Caption = 'Buy'
@@ -200,14 +200,21 @@ object formcompras: Tformcompras
     Width = 217
     Height = 255
     Strings.Strings = (
-      'anyo=0'
-      'km=0'
+      'Mes=0'
+      'A'#241'o=0'
+      'km=1'
       'precio=1'
-      'precioventa=1'
-      'nombrecoche='
+      '='
+      'Nombre='
       'matricula='
-      'modelo=')
+      'modelo='
+      'averia='
+      'motor='
+      'ruedas=')
     TabOrder = 6
+    TitleCaptions.Strings = (
+      '.'
+      '..')
     ColWidths = (
       82
       129)

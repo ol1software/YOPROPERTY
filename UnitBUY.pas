@@ -112,6 +112,23 @@ var
 i: integer;
 begin
 (*
+	`id`	int ( 11 ) NOT NULL,
+	`nombrecoche`	text NOT NULL DEFAULT 0,
+	`matricula`	text NOT NULL DEFAULT 0,
+	`modelo`	TEXT DEFAULT 0,
+	`km`	int ( 11 ) DEFAULT 0,
+	`mes`	INTEGER,
+	`anyo`	int ( 11 ) NOT NULL DEFAULT 2022,
+	`averia`	text NOT NULL DEFAULT 0,
+	`motor`	INTEGER NOT NULL DEFAULT 100,
+	`ruedas`	INTEGER NOT NULL DEFAULT 100,
+	`precio`	int ( 11 ) NOT NULL DEFAULT 0,
+	`precioventa`	INTEGER,
+	`estado`	INTEGER DEFAULT 100,
+	`foto`	text NOT NULL DEFAULT 'general.jpg',
+	`fotosalpicadero`	varchar ( 25 ) NOT NULL DEFAULT 0,
+	`propietario`
+
 anyo=0
 km=0
 <averia=0
@@ -131,13 +148,19 @@ modelo=
 
 idactual:=id;
 
-valores.Cells[1,1]:=coches[id].anyo.ToString;
-valores.Cells[1,2]:=coches[id].km.ToString;
-valores.Cells[1,3]:=coches[id].precio.ToString;
-valores.Cells[1,4]:=coches[id].precioventa.ToString;
-valores.Cells[1,5]:=coches[id].nombrecoche;
-valores.Cells[1,6]:=coches[id].matricula;
-valores.Cells[1,7]:=coches[id].modelo;
+
+valores.Cells[1,1]:=coches[id].mes.ToString;
+valores.Cells[1,2]:=coches[id].anyo.ToString;
+valores.Cells[1,3]:=coches[id].km.ToString;
+valores.Cells[1,4]:=coches[id].precio.ToString;
+valores.Cells[1,5]:=coches[id].precioventa.ToString;
+valores.Cells[1,6]:=coches[id].nombrecoche;
+valores.Cells[1,7]:=coches[id].matricula;
+valores.Cells[1,8]:=coches[id].modelo;
+valores.Cells[1,9]:=coches[id].averia.ToString;
+valores.Cells[1,10]:=coches[id].motor.ToString;
+valores.Cells[1,11]:=coches[id].ruedas.ToString;
+
 
 if coches[id].propietario=1 then Begin
         shape1.Brush.Color:=clLime;
@@ -225,7 +248,7 @@ x:=fechajuego.Month;
 y:=fechajuego.Year;
 
 if (x>=coches[i].mes) and (y>=coches[i].anyo) then Begin
-Showmessage(inttostr(i)+'-'+coches[i].nombrecoche);
+//Showmessage(inttostr(i)+'-'+coches[i].nombrecoche);
 
                                         CargaVehiculoForm(i);
                                         exit;
@@ -239,13 +262,14 @@ for i := z downto 1 do begin
 
 x:=fechajuego.Month;
 y:=fechajuego.Year;
-
+(*
 if (x>=coches[i].mes) and (y>=coches[i].anyo) then Begin
 Showmessage(inttostr(i)+'-'+coches[i].nombrecoche);
 
                                         CargaVehiculoForm(i);
                                         exit;
                                                    End;
+                                                   *)
 
                           end;
 

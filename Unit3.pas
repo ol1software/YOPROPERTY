@@ -57,7 +57,6 @@ type
     procedure FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char;
       Shift: TShiftState);
     procedure Timer1Timer(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button6Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -92,7 +91,7 @@ implementation
 
 {$R *.fmx}
 
-uses Unit4, Unit5, Unit7, Unit6, Unit9, Unit8, Unit10, global;
+uses Unit5, Unit7, Unit6, Unit9, Unit8, Unit10, global;
 
 
 procedure Tformjuego.CargaViajes(id: integer);
@@ -153,11 +152,6 @@ end;
 procedure Tformjuego.banClick(Sender: TObject);
 begin
 formbanco.showmodal;
-end;
-
-procedure Tformjuego.Button2Click(Sender: TObject);
-begin
-formcamiones.show;
 end;
 
 procedure Tformjuego.Button3Click(Sender: TObject);

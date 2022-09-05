@@ -53,6 +53,20 @@ type
           end;
 
 
+
+          // tabla trabajos
+  TTrabajos= record
+  id,
+	sueldo,
+	nivelrequerido,
+	contratado,
+  mescontratado,
+  anyocontratado: integer;
+    nombrepuesto: string;
+
+
+
+  end;
   // tabla Coches
   TCoches= record
 
@@ -86,11 +100,16 @@ type
       procedure PasaTurnoP;
       procedure PasaTurno;
 
-      procedure CargarVehiculos;
+      procedure CargarBases;
       procedure CargarGastos;
 
        procedure CompraVehiculo(tipo: string; id: integer);
       procedure GuardaVehiculo(id: integer);
+
+      function Dimesueldo: integer;
+      procedure PasaMes;
+
+      procedure RecalculaValores;
 
 
 
@@ -104,7 +123,9 @@ var
   FGlobal1: TFGlobal1;
     coches: array[1..75] of TCoches;
     pisos: array[1..75] of TPisos;
+    trabajos: array[1..75] of TTrabajos;
     gastos: array[1..75] of TGastos;
+
 
 
 
@@ -122,7 +143,9 @@ var
   ingresoturn, // ingreso y gasto por turno
   gastoturn,
   numerovehiculos,
-  ciudadactual:      // 1-madrid, 2-barcelona, 3-valencia, 4-malaga
+  numerotrabajos,
+  ciudadactual,
+  sueldoactual:      // 1-madrid, 2-barcelona, 3-valencia, 4-malaga
 
             integer;
 
@@ -230,13 +253,97 @@ begin
                      end else
    ShowMessage('Llegas a tu piso');
 
+
                      gastoturn:=gastoturn+i;
+                     dinero:=dinero-i;
+end;
+
+
+(*
+ Devuelve el sueldo del trabajo actual
+*)
+function Dimesueldo: integer;
+begin
+
+result:=500;
+
 end;
 
 
 
+
 (*
- Pasa una parte dentro del Turno 1 semanal L-D (7 partes)
+ RecalculaValores
+ Aquí se van:
+ - recalculando el valor de las propiedades (coches, pisos, cosas)
+*)
+procedure RecalculaValores;
+var
+i, x, y, m, z, w, resultado: integer;
+begin
+
+// RECALCULA VALOR COCHES
+for i := 1 to numerovehiculos do begin
+
+x:=fechajuego.Month;
+y:=fechajuego.Year;
+
+z:=coches[i].mes;
+resultado:=-(y-coches[i].anyo+z);
+
+resultado:=resultado-coches[i].averia;
+resultado:=resultado-coches[i].ruedas;
+resultado:=resultado-coches[i].estado;
+
+
+ShowMessage(coches[i].nombrecoche+'='+inttostr(resultado));
+
+
+                                 end;
+
+(*
+valores.Cells[1,1]:=coches[id].mes.ToString;
+valores.Cells[1,2]:=coches[id].anyo.ToString;
+valores.Cells[1,3]:=coches[id].km.ToString;
+valores.Cells[1,4]:=coches[id].precio.ToString;
+valores.Cells[1,5]:=coches[id].precioventa.ToString;
+valores.Cells[1,6]:=coches[id].nombrecoche;
+valores.Cells[1,7]:=coches[id].matricula;
+valores.Cells[1,8]:=coches[id].modelo;
+valores.Cells[1,9]:=coches[id].averia.ToString;
+valores.Cells[1,10]:=coches[id].motor.ToString;
+valores.Cells[1,11]:=coches[id].ruedas.ToString;
+                       *)
+
+end;
+
+
+(*
+ Pasa un MES
+ Aquí se van:
+ - sumando beneficios y gastos
+*)
+procedure PasaMes;
+begin
+
+ingresoturn:=ingresoturn+sueldoactual;
+
+Evento;
+
+fechajuego := fechajuego+1;
+DecodificaFecha(fechajuego);
+
+RecalculaValores;
+
+            dinero:=dinero+ingresoturn;
+            dinero:=dinero-gastoturn;
+
+
+end;
+
+
+(*
+ Pasa un DIA dentro del Turno 1 semanal L-D (7 partes)
  Aquí se van:
  - sumando beneficios y gastos
 *)
@@ -245,7 +352,8 @@ begin
 
 //Showmessage(inttostr(fechajuego.DayOfTheWeek));
    diasemana:=diasemana+1;
-
+   if fechajuego.DaysInMonth=fechajuego.Day then PasaMes
+     else
    if fechajuego.DayOfTheWeek=7 then PasaTurno // si es domingo, pasa turno semanal
                                 else
           fechajuego := fechajuego+1; // si no pasa, sigue otro dia
@@ -254,11 +362,6 @@ begin
 DecodificaFecha(fechajuego);
 
 Alojamiento(ciudadactual);
-
-
-
-
-
 
          //   ingresoturn:=1500;
         //    gastoturn:=Random(800);
@@ -270,7 +373,7 @@ end;
 
 
 (*
- FIN del Turno (7 partes), actualizando los datos
+ FIN del Turno SEMANA (7 partes), actualizando los datos
 *)
 procedure PasaTurno;
 begin
@@ -283,9 +386,6 @@ DecodificaFecha(fechajuego);
 
 diasemana:=1;
 
-
-          //  ingresoturn:=1500;
-          //  gastoturn:=Random(800);
 
             ingresoturn:=ingresoturn-gastoturn;
             dinero:=dinero+ingresoturn;
@@ -429,10 +529,10 @@ end;
 
 
 (*
- CargarVehiculos--
- - carga la info de los vehiculos en la tabla coches
+ CargarBases--
+ - carga la info de las BD: vehiculos=coches, trabajos=trabajos
 *)
-procedure CargarVehiculos;
+procedure CargarBases;
 var
 i, j, c: integer;
 str: string;
@@ -476,18 +576,46 @@ global1.coches[i].propietario:=fdtable1.FieldByName('propietario').AsInteger;
      global1.coches[i].fotosalpicadero :=fdtable1.FieldByName('fotosalpicadero').AsString;
 
 
+               fdtable1.Next;
+
+                    end;     // end coches
+
+ (*
+ trabajos
+ *)
+                                     // end
+fdtable1.Active:=false;
+fdtable1.TableName:= 'trabajos';
+//FDTable1.Filter := 'nombre='+Quotedstr('BBVA');
+//FDTable1.Filter := 'idcoche>'+Quotedstr('0');
+FDTable1.Filtered := True;
+fdtable1.Active:=true;
+fdtable1.UpdateTransaction;
+
+c:=fdtable1.RecordCount;
+numerotrabajos:=c;
+//numerocamiones:=c;
+
+for i := 1 to c do begin
 
 
+global1.trabajos[i].id:=fdtable1.FieldByName('id').AsInteger;
+global1.trabajos[i].sueldo:=fdtable1.FieldByName('sueldo').AsInteger;
+global1.trabajos[i].nivelrequerido:=fdtable1.FieldByName('nivelrequerido').AsInteger;
+global1.trabajos[i].nombrepuesto:=fdtable1.FieldByName('nombrepuesto').AsString;
+global1.trabajos[i].contratado:=fdtable1.FieldByName('contratado').AsInteger;
+global1.trabajos[i].mescontratado:=fdtable1.FieldByName('mescontratado').AsInteger;
+global1.trabajos[i].anyocontratado:=fdtable1.FieldByName('anyocontratado').AsInteger;
 
                fdtable1.Next;
 
 
-                    end;
+                    end;  // end trabajos
 
 
 
 
-                End;
+                End; // end fglobal
 
 end;
 
