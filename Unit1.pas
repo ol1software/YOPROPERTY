@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls, Vcl.ToolWin, Vcl.StdCtrls,
   Vcl.Imaging.pngimage, Vcl.ExtCtrls, Vcl.Imaging.jpeg, Vcl.CheckLst, Vcl.Menus,
-  Unitvehiculos, Vcl.NumberBox, Vcl.Buttons;
+  Unitvehiculos, Vcl.NumberBox, Vcl.Buttons, Vcl.ColorGrd;
 
 type
   TForm1 = class(TForm)
@@ -32,7 +32,6 @@ type
     TabSheet2: TTabSheet;
     TabControl1: TTabControl;
     Panel1: TPanel;
-    Image1: TImage;
     Label1: TLabel;
     l2: TLabel;
     calendario: TMonthCalendar;
@@ -59,6 +58,9 @@ type
     menu1: TMenuItem;
     Memoingresos: TMemo;
     Memogastos: TMemo;
+    Timer1: TTimer;
+    Timer2: TTimer;
+    CheckBox1: TCheckBox;
     procedure ToolButton4Click(Sender: TObject);
 
 
@@ -74,6 +76,7 @@ type
     procedure botonviajaClick(Sender: TObject);
     procedure menu1Click(Sender: TObject);
     procedure ToolButton6Click(Sender: TObject);
+    procedure CheckBox1Click(Sender: TObject);
 
   private
     { Private declarations }
@@ -211,7 +214,7 @@ implementation
 
 {$R *.dfm}
 
-uses Unit2, UnitZero, global1, UnitBUY, Unit8, Unit10;
+uses Unit2, UnitZero, global1, UnitBUY, Unit8, Unit10, UnitBank;
 
 // NUEVO JUEGO BTN
 // *********************************************
@@ -359,8 +362,9 @@ gastoturn:=0;
       ShowMessage('Viajando a ... '+ciudadestexto[ciudad]);
      ciudadactual:=ciudad;
 
+     RecalculaValoresCoches(2);
+
      i:=Random(100);
-     ShowMessage('Gastaste '+inttostr(i)+'euros en AVE');
 
      gastoturn:=gastoturn+i;
 
@@ -392,7 +396,13 @@ end;
 
 
 
-  procedure TForm1.menu1Click(Sender: TObject);
+  procedure TForm1.CheckBox1Click(Sender: TObject);
+begin
+  statusbar1.Visible:=checkbox1.Checked;
+
+end;
+
+procedure TForm1.menu1Click(Sender: TObject);
 begin
 formvarios.showmodal;
 end;
@@ -417,7 +427,7 @@ end;
 
 procedure TForm1.ToolButton6Click(Sender: TObject);
 begin
-formbiz.showmodal;
+formbank.showmodal;
 end;
 
 end.

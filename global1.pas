@@ -11,7 +11,7 @@ uses
   FireDAC.Stan.Def, FireDAC.Stan.Pool, FireDAC.Phys, FireDAC.VCLUI.Wait,
   FireDAC.Phys.TDBX, FireDAC.Phys.TDBXDef, FireDAC.Phys.SQLite,
   FireDAC.Phys.SQLiteDef, FireDAC.Stan.ExprFuncs,
-  FireDAC.Phys.SQLiteWrapper.Stat;
+  FireDAC.Phys.SQLiteWrapper.Stat, StrUtils;
 
 type
   TFGlobal1 = class(TForm)
@@ -32,24 +32,39 @@ type
             end;
 
 
+            (*
+            CREATE TABLE "pisos" (
+
+            *)
   // tabla Pisos
   TPisos= record
 
-    idpiso,
-  anyo,
-  averia,
-  calidad,
-  precio,
-  precioventa,
-  estado, propietario,
-  numerocalle, piso, letra,
-  calidadbarrio, habitaciones, m2 : integer;
+	id,
+  portal,
+	planta,
+  ciudad,
+	calidadbarrio,
+	metros,
+	dormitorios,
+banyos,
+	calidad,
+mes,
+anyo,
+	preciocompra,
+	mescompra,
+	anyocompra,
+	estado,
+	precio,
+	alquiler,
+	propietario,
+	rentador,
+	foto2,
+	foto3: integer;
 
-  nombrecalle,
-  barrio,
-  modelo,
-  foto,
-  fotosalpicadero: string;
+calle,
+	letra,
+	barrio,
+  	foto: string;
           end;
 
 
@@ -74,25 +89,44 @@ type
   km,
   mes,
   anyo,
-  averia,
+  anyodisponible,
   motor,
   ruedas,
   precio,
-  precioventa,
-  estado, propietario: integer;
+  preciocompra,
+  mescompra,
+  anyocompra,
+  estado, propietario,
+  alaventa, ciudad: integer;
 
   nombrecoche,
   matricula,
   modelo,
   foto,
+ // foto2,
   fotosalpicadero: string;
+  end;
 
 
 
 
 
+    // tabla Objetos
+  TObjetos= record
+  id,
+  mes,
+  anyo,
+  averia,
+  precio,
+  preciocompra,
+  mescompra,
+  anyocompra,
+  estado,
+  tipo,     // 1-consola 2-portatil
+  propietario: integer;
 
-
+  nombre,
+  foto: string;
             end;
 
       procedure InicializaVariables;
@@ -103,15 +137,15 @@ type
       procedure CargarBases;
       procedure CargarGastos;
 
-       procedure CompraVehiculo(tipo: string; id: integer);
-      procedure GuardaVehiculo(id: integer);
+       procedure Compra(tipo: string; id: integer);
+      procedure Guarda(tipo: string; id: integer);
 
       function Dimesueldo: integer;
       procedure PasaMes;
 
-      procedure RecalculaValores;
+      procedure RecalculaValoresCoches(tipo: integer);
 
-
+      procedure MensajeCoolbar(c: string);
 
 
 const
@@ -123,6 +157,8 @@ var
   FGlobal1: TFGlobal1;
     coches: array[1..75] of TCoches;
     pisos: array[1..75] of TPisos;
+  //  objetos: array[1..75] of TObjetos;
+
     trabajos: array[1..75] of TTrabajos;
     gastos: array[1..75] of TGastos;
 
@@ -132,10 +168,11 @@ var
   ruta: string;  // C:\Users\lv1\Desktop\YPROW\
   rutajpg: string='C:\Users\lv1\Desktop\YPROW\graf';
   rutajpgcoches: string='C:\Users\lv1\Desktop\YPROW\graf\cochesjpg\';
+  rutajpgpisos: string;
 
 
 
-  // Variables del Juego
+  // VARIABLES del Juego
 
     days: array[1..7] of string;
   idjuego, idciudadactual, dinero, experiencia, power,
@@ -143,6 +180,7 @@ var
   ingresoturn, // ingreso y gasto por turno
   gastoturn,
   numerovehiculos,
+  numeropisos,
   numerotrabajos,
   ciudadactual,
   sueldoactual:      // 1-madrid, 2-barcelona, 3-valencia, 4-malaga
@@ -161,6 +199,8 @@ var
 implementation
 
 {$R *.dfm}
+
+uses Unit1;
 
 (*
             decodifica la fecha
@@ -207,15 +247,33 @@ messtr:=mes[fechajuego.Month];
 end;
 
 
+(*
+MensajeCoolbar
+- rellena la coolbar con un mensaje
+*)
+procedure MensajeCoolbar(c: string);
+var x: integer;
+begin
+
+x:=random(10);
+
+
+        form1.StatusBar1.Panels[0].Text:=c;
+
+
+
+end;
+
 
 (*
  Se produce un Evento, que puede ser ingreso+ o gasto, por sorteo
  Aquí se van:
  - sumando beneficios o gastos
 *)
-procedure Evento;
+function Evento: string;
 var
 ran, r2: integer;
+c: string;
 begin
 
 // añadir eventos a tabla
@@ -225,17 +283,22 @@ r2:=random(10);
 
 // se sortea, y gasto
 if r2<2 then Begin
-ShowMessage('Pago del IBI, te cobran '+inttostr(ran));
+c:='Pago del IBI, te cobran '+inttostr(ran);
 gastoturn:=gastoturn+ran;
              End;
 
 // se sortea, e ingresas
 if r2>8 then Begin
-ShowMessage('Te encuentras un maletin con '+inttostr(ran));
+c:='Te encuentras un maletin con '+inttostr(ran);
 ingresoturn:=ingresoturn+ran;
              End;
 
+             MensajeCoolbar(c);
+
 end;
+
+
+
 
 
 (*
@@ -244,18 +307,21 @@ Aloja al jugador en un hotel, o en piso (si dispone de él)
  - restando el coste del hotel
  -- se utiliza alojamientociudad
 *)
-procedure Alojamiento(city: integer);
+function Alojamiento(city: integer): string;
+var
+c: string;
 begin
      if alojamientociudad[city]=0 then
                      begin
   i:=Random(100)+50;
-  ShowMessage('No tienes piso en la ciudad, gastas en Hotel '+inttostr(i)+'euros');
+  c:='No tienes piso en la ciudad, gastas en Hotel '+inttostr(i)+'euros';
                      end else
-   ShowMessage('Llegas a tu piso');
+   c:='Llegas a tu piso';
 
 
                      gastoturn:=gastoturn+i;
                      dinero:=dinero-i;
+                     MensajeCoolbar(c);
 end;
 
 
@@ -275,45 +341,57 @@ end;
 (*
  RecalculaValores
  Aquí se van:
- - recalculando el valor de las propiedades (coches, pisos, cosas)
+ - recalculando el valor de las propiedades (coches)
+ 1: recalcula según el estado del coche y paso de tiempo
+ 2: recalcula según 1 y además random
 *)
-procedure RecalculaValores;
+procedure RecalculaValoresCoches(tipo: integer);
 var
-i, x, y, m, z, w, resultado: integer;
+a, e, i, x, y, m, z, w, r,r2, pco, resultado: integer;
+pcf: double;
+
 begin
-
-// RECALCULA VALOR COCHES
-for i := 1 to numerovehiculos do begin
-
 x:=fechajuego.Month;
 y:=fechajuego.Year;
 
-z:=coches[i].mes;
-resultado:=-(y-coches[i].anyo+z);
 
-resultado:=resultado-coches[i].averia;
-resultado:=resultado-coches[i].ruedas;
-resultado:=resultado-coches[i].estado;
+// RECALCULA VALOR COCHES POR PASO TIEMPO Y ESTADO
+for i := 1 to numerovehiculos do begin
+
+// solo recalcula coches a la venta
+if (y>=coches[i].anyo) AND (coches[i].anyodisponible>=coches[i].anyo)  then
+                                   BEGIN
+a:=coches[i].anyo;
+pco:=coches[i].preciocompra;
+e:=coches[i].estado; // % de buen estado
 
 
-ShowMessage(coches[i].nombrecoche+'='+inttostr(resultado));
+(* DEVALUATION -------------------
+----------------------------------
+*)
 
+e:=e-5; // devalúa coche por paso del tiempo
+
+// añade una devaluación o reval. extra, de manera aleatoria
+if tipo=2  then Begin
+r:=Random(100); r2:=Random(40);
+if r>70 then e:=e+r2 else e:=e-r2;
+                End;
+
+
+
+pcf:=pco*e; // el % de buen estado es el precio que queda
+pcf:=pcf/100;
+
+coches[i].preciocompra:=Trunc(pcf);
+                                   END;
 
                                  end;
 
-(*
-valores.Cells[1,1]:=coches[id].mes.ToString;
-valores.Cells[1,2]:=coches[id].anyo.ToString;
-valores.Cells[1,3]:=coches[id].km.ToString;
-valores.Cells[1,4]:=coches[id].precio.ToString;
-valores.Cells[1,5]:=coches[id].precioventa.ToString;
-valores.Cells[1,6]:=coches[id].nombrecoche;
-valores.Cells[1,7]:=coches[id].matricula;
-valores.Cells[1,8]:=coches[id].modelo;
-valores.Cells[1,9]:=coches[id].averia.ToString;
-valores.Cells[1,10]:=coches[id].motor.ToString;
-valores.Cells[1,11]:=coches[id].ruedas.ToString;
-                       *)
+
+
+
+
 
 end;
 
@@ -333,7 +411,7 @@ Evento;
 fechajuego := fechajuego+1;
 DecodificaFecha(fechajuego);
 
-RecalculaValores;
+RecalculaValoresCoches(1);
 
             dinero:=dinero+ingresoturn;
             dinero:=dinero-gastoturn;
@@ -380,6 +458,7 @@ begin
 
 
 Evento;
+RecalculaValoresCoches(1);
 
 fechajuego := fechajuego+1;
 DecodificaFecha(fechajuego);
@@ -405,6 +484,7 @@ ruta:=ExcludeTrailingPathDelimiter( ExtractFileDir(ExtractFilePath(ruta)) );
 ruta:=ExcludeTrailingPathDelimiter( ExtractFileDir(ExtractFilePath(ruta)) )+'\';   // ruta buena
   rutajpg:=ruta+'graf\';
   rutajpgcoches:=ruta+'graf\cochesjpg\';
+    rutajpgpisos:=ruta+'graf\pisosjpg\';
   fglobal1.FDTable1.Connection.Params.Database:=ruta+'baseY.db';
 end;
 
@@ -412,70 +492,104 @@ end;
 
 
       (*
-  ---CompraVehiculo
-  -compra un vehiculo en el formulario de vehiculos
+  ---Compra
+  -compra un piso/coche
   *)
- procedure CompraVehiculo(tipo: string; id: integer);
+ procedure Compra(tipo: string; id: integer);
+ var
+ i: integer;
   begin
 
+  if tipo='coches' then i:=0 else i:=1;
 
+  case I of
+      0: begin
 
-    if tipo='vehiculo' then coches[id].propietario:=1;  //1 en "propietario" en coche[id]
-    coches[id].idcoche:=id;
+          if dinero<coches[id].precio then
+          Begin Showmessage('NO TIENES SUFICIENTE DINERO'); exit; end;
+
+              coches[id].propietario:=1;  //1 en "propietario" en coche[id]
+              coches[id].preciocompra:=coches[id].precio;
+
+  //  coches[id].idcoche:=id;
      dinero:=dinero-coches[id].precio;
-     GuardaVehiculo(id);
-     ShowMessage('comprado');
+     Guarda('coches',id);
+     ShowMessage('coche comprado');
+      PasaTurnoP;
 
-     PasaTurnoP;
+                  end;
+
+      1: begin
+
+
+          if dinero<pisos[id].preciocompra then
+          Begin Showmessage('NO TIENES SUFICIENTE DINERO'); exit; end;
+
+              pisos[id].propietario:=1;  //1 en "propietario" en coche[id]
+              pisos[id].preciocompra:=pisos[id].precio;
+
+    //pisos[id].idcoche:=id;
+     dinero:=dinero-pisos[id].preciocompra;
+     Guarda('pisos',id);
+     ShowMessage('piso comprado');
+      PasaTurnoP;
+
+              end;
+
+  end;
+
+
+
 
 
 
   end;
 
  (*
- GuardaVehiculo--
- -guarda los datos del vehiculo existente, con el id
+ Guarda--
+ -guarda un objeto existente, (coches pisos ) con el id
 *)
-procedure GuardaVehiculo(id: integer);
+procedure Guarda(tipo: string; id: integer);
 var
 i, j, c: word;
 begin
 
     with fglobal1 do Begin
        fdtable1.Active:=false;
-fdtable1.TableName:= 'coches';
+fdtable1.TableName:= tipo;
 fdtable1.Filter := 'id='+inttostr(id);
 fdtable1.Filtered := True;
 fdtable1.Active:=true;
 fdtable1.Edit;
 
 DecodeDate(fechajuego, i,j,c);
-ShowMessage(inttostr(i));
-  global1.coches[id].anyo:=i;
-          (*
-    fechacompra: Tdate;
-    idcoche,
-  km,
-  anyo,
-  averia,
-  otro,
-  motor,
-  ruedas,
-  precio,
-  estado, propietario: integer;
+//ShowMessage(inttostr(i));
 
-  nombrecoche,
-  matricula,
-  modelo,
-  foto,
-  fotosalpicadero: string;   *)
+case IndexStr(tipo, ['coches','pisos'] ) of
+   0: begin
+   fdtable1.FieldByName('propietario').value:=global1.coches[id].propietario;
+  fdtable1.FieldByName('precio').value:=global1.coches[id].precio;
+  fdtable1.FieldByName('estado').value:=global1.coches[id].estado;
+  fdtable1.FieldByName('preciocompra').value:=global1.coches[id].preciocompra;
+  fdtable1.FieldByName('mescompra').value:=fechajuego.Month;
+  fdtable1.FieldByName('anyocompra').value:=fechajuego.Year;
+  fdtable1.FieldByName('ciudad').value:=global1.coches[id].ciudad;
+      end;
 
-  fdtable1.FieldByName('nombrecoche').value:=coches[id].nombrecoche;
-  fdtable1.FieldByName('id').value :=id;
-  fdtable1.FieldByName('propietario').value:=global1.coches[id].propietario;
-    fdtable1.FieldByName('anyo').value:=i;
- // fdtable1.FieldByName('precio').value:=global1.coches[id].precio;
-   //  global1.coches[i].foto:=rutajpgcoches+fdtable1.FieldByName('foto').value:=;
+
+   1: begin
+  fdtable1.FieldByName('propietario').value:=global1.pisos[id].propietario;
+  fdtable1.FieldByName('precio').value:=global1.pisos[id].precio;
+  fdtable1.FieldByName('estado').value:=global1.pisos[id].estado;
+  fdtable1.FieldByName('preciocompra').value:=global1.pisos[id].preciocompra;
+  fdtable1.FieldByName('mescompra').value:=global1.pisos[id].mescompra;
+  fdtable1.FieldByName('anyocompra').value:=global1.pisos[id].anyocompra;
+  fdtable1.FieldByName('ciudad').value:=global1.pisos[id].ciudad;
+       end;
+end;
+ // end case
+
+
 
 fdtable1.post;
                  end;
@@ -530,13 +644,16 @@ end;
 
 (*
  CargarBases--
- - carga la info de las BD: vehiculos=coches, trabajos=trabajos
+ - carga la info de las BD: coches, pisos
+ **************************************************************
 *)
 procedure CargarBases;
 var
 i, j, c: integer;
 str: string;
 begin
+
+// CARGA COCHES ----------------------------------
 
 with fglobal1 do Begin
 
@@ -559,14 +676,17 @@ for i := 1 to c do begin
       global1.coches[i].km:=fdtable1.FieldByName('km').AsInteger;
       global1.coches[i].mes:=fdtable1.FieldByName('mes').AsInteger;
 global1.coches[i].anyo:=fdtable1.FieldByName('anyo').AsInteger;
-global1.coches[i].averia:=fdtable1.FieldByName('averia').AsInteger;
 global1.coches[i].motor:=fdtable1.FieldByName('motor').AsInteger;
 global1.coches[i].ruedas:=fdtable1.FieldByName('ruedas').AsInteger;
 global1.coches[i].precio:=fdtable1.FieldByName('precio').AsInteger;
-global1.coches[i].precio:=fdtable1.FieldByName('precioventa').AsInteger;
+global1.coches[i].preciocompra:=fdtable1.FieldByName('preciocompra').AsInteger;
+global1.coches[i].mescompra:=fdtable1.FieldByName('mescompra').AsInteger;
+global1.coches[i].anyocompra:=fdtable1.FieldByName('anyocompra').AsInteger;
 global1.coches[i].estado:=fdtable1.FieldByName('estado').AsInteger;
 global1.coches[i].propietario:=fdtable1.FieldByName('propietario').AsInteger;
-
+global1.coches[i].alaventa:=fdtable1.FieldByName('alaventa').AsInteger;
+global1.coches[i].anyodisponible:=fdtable1.FieldByName('anyodisponible').AsInteger;
+global1.coches[i].ciudad:=fdtable1.FieldByName('ciudad').AsInteger;
 
 
      global1.coches[i].nombrecoche :=fdtable1.FieldByName('nombrecoche').AsString;
@@ -580,9 +700,63 @@ global1.coches[i].propietario:=fdtable1.FieldByName('propietario').AsInteger;
 
                     end;     // end coches
 
+
+
+  (*
+// CARGA PISOS ----------------------------------
+
+  *)
+fdtable1.Active:=false;
+fdtable1.TableName:= 'pisos';
+//FDTable1.Filter := 'nombre='+Quotedstr('BBVA');
+//FDTable1.Filter := 'idcoche>'+Quotedstr('0');
+FDTable1.Filtered := True;
+fdtable1.Active:=true;
+fdtable1.UpdateTransaction;
+
+c:=fdtable1.RecordCount;
+numeropisos:=c;
+//numerocamiones:=c;
+
+for i := 1 to c do begin
+
+
+global1.pisos[i].id:=fdtable1.FieldByName('id').AsInteger;
+global1.pisos[i].portal:=fdtable1.FieldByName('portal').AsInteger;
+global1.pisos[i].planta:=fdtable1.FieldByName('planta').AsInteger;
+global1.pisos[i].calidadbarrio:=fdtable1.FieldByName('calidadbarrio').AsInteger;
+global1.pisos[i].metros:=fdtable1.FieldByName('metros').AsInteger;
+global1.pisos[i].dormitorios:=fdtable1.FieldByName('dormitorios').AsInteger;
+global1.pisos[i].banyos:=fdtable1.FieldByName('banyos').AsInteger;
+global1.pisos[i].calidad:=fdtable1.FieldByName('calidad').AsInteger;
+global1.pisos[i].mes:=fdtable1.FieldByName('mes').AsInteger;
+global1.pisos[i].anyo:=fdtable1.FieldByName('anyo').AsInteger;
+global1.pisos[i].preciocompra:=fdtable1.FieldByName('preciocompra').AsInteger;
+global1.pisos[i].mescompra:=fdtable1.FieldByName('mescompra').AsInteger;
+global1.pisos[i].anyocompra:=fdtable1.FieldByName('anyocompra').AsInteger;
+global1.pisos[i].estado:=fdtable1.FieldByName('estado').AsInteger;
+global1.pisos[i].precio:=fdtable1.FieldByName('precio').AsInteger;
+global1.pisos[i].ciudad:=fdtable1.FieldByName('ciudad').AsInteger;
+
+global1.pisos[i].alquiler:=fdtable1.FieldByName('alquiler').AsInteger;
+global1.pisos[i].propietario:=fdtable1.FieldByName('propietario').AsInteger;
+global1.pisos[i].rentador:=fdtable1.FieldByName('rentador').AsInteger;
+global1.pisos[i].foto2:=fdtable1.FieldByName('foto2').AsInteger;
+global1.pisos[i].foto3:=fdtable1.FieldByName('foto3').AsInteger;
+
+global1.pisos[i].calle:=fdtable1.FieldByName('calle').AsString;
+global1.pisos[i].letra:=fdtable1.FieldByName('letra').AsString;
+global1.pisos[i].barrio:=fdtable1.FieldByName('barrio').AsString;
+global1.pisos[i].foto:=rutajpgpisos+fdtable1.FieldByName('foto').AsString;
+
+               fdtable1.Next;
+
+
+                    end;  // end pisos
+
  (*
- trabajos
- *)
+ CARGA TRABAJOS---------------------------------------------
+
                                      // end
 fdtable1.Active:=false;
 fdtable1.TableName:= 'trabajos';
@@ -612,12 +786,18 @@ global1.trabajos[i].anyocontratado:=fdtable1.FieldByName('anyocontratado').AsInt
 
                     end;  // end trabajos
 
+             *)
 
 
 
                 End; // end fglobal
 
 end;
+(*
+*****
+FIN CargarBases -----
+*****
+*)
 
 
 

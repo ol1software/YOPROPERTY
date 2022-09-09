@@ -13,9 +13,11 @@ type
     ImageControl1: TImageControl;
     labelh: TLabel;
     Label10: TLabel;
+    Button1: TButton;
     procedure ImageControl5Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure ImageControl2Click(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
 
   private
     { Private declarations }
@@ -31,8 +33,13 @@ implementation
 
 {$R *.fmx}
 
-uses global;
+uses global, UnitBank;
 
+
+procedure Tformbiz.Button1Click(Sender: TObject);
+begin
+formbank.showmodal;
+end;
 
 procedure Tformbiz.FormShow(Sender: TObject);
 var

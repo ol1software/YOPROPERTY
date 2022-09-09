@@ -9,22 +9,39 @@ uses
 
 type
   Tformcompras = class(TForm)
+    contenedor1: TPageControl;
+    TabSheet1: TTabSheet;
+    Panel1: TPanel;
+    Memoingresos: TMemo;
+    Memogastos: TMemo;
+    TabSheet2: TTabSheet;
     fotocoche: TImage;
-    nombrevehtxt: TLabel;
-    dere: TImage;
     izq: TImage;
-    Button1: TButton;
-    Edit1: TEdit;
+    dere: TImage;
     ComboBox1: TComboBox;
+    nombrevehtxt: TLabel;
+    dinerotxt: TStaticText;
+    Edit1: TEdit;
+    valores: TValueListEditor;
+    Button1: TButton;
     Button2: TButton;
     propcheck: TCheckBox;
-    Label2: TLabel;
-    dinerotxt: TStaticText;
+    TabSheet3: TTabSheet;
     Shape1: TShape;
-    valores: TValueListEditor;
+    ComboBox2: TComboBox;
+    izqh: TImage;
+    derh: TImage;
+    fotopiso: TImage;
+    Button3: TButton;
+    Button4: TButton;
+    Shape2: TShape;
+    CheckBox1: TCheckBox;
+    valoresh: TValueListEditor;
+    Button5: TButton;
 
-  procedure CargaVehiculoForm(id: integer);
-  procedure CargaVehiculos(movimiento: integer);
+  procedure CargaPropiedadesForm(id: integer; tipo: integer);
+  procedure CargaVehiculos(movimiento: integer; reset: boolean);
+  procedure CargaPisos(movimiento: integer; reset: boolean);
     procedure RellenaPantalla;
 
     procedure FormShow(Sender: TObject);
@@ -32,6 +49,9 @@ type
     procedure Button1Click(Sender: TObject);
     procedure dereClick(Sender: TObject);
     procedure izqClick(Sender: TObject);
+    procedure izqhClick(Sender: TObject);
+    procedure derhClick(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
 
   private
     { Private declarations }
@@ -43,6 +63,8 @@ var
   formcompras: Tformcompras;
 
   idactual: integer;   // id del coche actual cargado
+  idactualH: integer;   // id del piso actual cargado
+
 
 implementation
 
@@ -70,6 +92,11 @@ uses Unit1;
                   else izq.Enabled:=true;
   if idactual=numerovehiculos then dere.Enabled:=false else dere.Enabled:=true;
 
+  // pisos
+      if idactualH=1 then izqH.Enabled:=false
+                  else izqH.Enabled:=true;
+  if idactualH=numeropisos then derH.Enabled:=false else derH.Enabled:=true;
+
 dinerotxt.Caption:=CurrtoStrF(dinero,ffCurrency, 0 );
 
 
@@ -93,7 +120,7 @@ begin
 
 
 
-CompraVehiculo('vehiculo',idactual);
+Compra('vehiculo',idactual);
 
 RellenaPantalla;
 
@@ -103,61 +130,32 @@ end;
 
 
    (*
-  CargaVehiculoForm
-  -carga un vehiculo en el formulario de compra
+  CargaPropiedadesForm
+  -carga las propiedades (vehiculo-piso) en el formulario de compra
+  tipo:1 = coche, 2= piso
   *)
 
-procedure Tformcompras.CargaVehiculoForm(id: integer);
+procedure Tformcompras.CargaPropiedadesForm(id: integer; tipo: integer);
 var
 i: integer;
 begin
-(*
-	`id`	int ( 11 ) NOT NULL,
-	`nombrecoche`	text NOT NULL DEFAULT 0,
-	`matricula`	text NOT NULL DEFAULT 0,
-	`modelo`	TEXT DEFAULT 0,
-	`km`	int ( 11 ) DEFAULT 0,
-	`mes`	INTEGER,
-	`anyo`	int ( 11 ) NOT NULL DEFAULT 2022,
-	`averia`	text NOT NULL DEFAULT 0,
-	`motor`	INTEGER NOT NULL DEFAULT 100,
-	`ruedas`	INTEGER NOT NULL DEFAULT 100,
-	`precio`	int ( 11 ) NOT NULL DEFAULT 0,
-	`precioventa`	INTEGER,
-	`estado`	INTEGER DEFAULT 100,
-	`foto`	text NOT NULL DEFAULT 'general.jpg',
-	`fotosalpicadero`	varchar ( 25 ) NOT NULL DEFAULT 0,
-	`propietario`
 
-anyo=0
-km=0
-<averia=0
-<motor=0
-<ruedas=1
-precio=1
-precioventa=1
-<estado=
-<propietario=
-nombrecoche=
-matricula=
-modelo=
-*)
-//valores.Strings.SetStrings()
 
-//for I := 1 to 7 do   Showmessage(valores.Values[i]);
+
+
+if tipo=1 then BEGIN
 
 idactual:=id;
 
-
+// VALORES COCHES
 valores.Cells[1,1]:=coches[id].mes.ToString;
 valores.Cells[1,2]:=coches[id].anyo.ToString;
 valores.Cells[1,3]:=coches[id].km.ToString;
 valores.Cells[1,4]:=coches[id].precio.ToString;
-valores.Cells[1,5]:=coches[id].precioventa.ToString;
+valores.Cells[1,5]:=coches[id].preciocompra.ToString;
 valores.Cells[1,6]:=coches[id].nombrecoche;
 valores.Cells[1,7]:=coches[id].matricula;
 valores.Cells[1,8]:=coches[id].modelo;
-valores.Cells[1,9]:=coches[id].averia.ToString;
 valores.Cells[1,10]:=coches[id].motor.ToString;
 valores.Cells[1,11]:=coches[id].ruedas.ToString;
 
@@ -171,58 +169,109 @@ if coches[id].propietario=1 then Begin
         End;
 fotocoche.Picture.LoadFromFile(coches[id].foto);
 nombrevehtxt.Caption:=coches[id].nombrecoche;
-//Showmessage(coches[id].nombrecoche);
+                END else
+
+
+                BEGIN     // tipo = 2 PISOS
+idactualH:=id;
+
+(****************
+
+// VALORES PISOS
+	"calle"	TEXT,
+	"barrio"	TEXT,
+	"metros"	INTEGER,
+	"calidad"	INTEGER,
+	"anyo"	INTEGER,
+	"estado"	INTEGER,
+	"precio"	INTEGER,
+  *)
+
+valoresh.Cells[1,1]:=pisos[id].calle;
+valoresh.Cells[1,2]:=pisos[id].barrio;
+valoresh.Cells[1,3]:=pisos[id].metros.ToString;
+valoresh.Cells[1,4]:=pisos[id].calidad.ToString;
+valoresh.Cells[1,6]:=pisos[id].anyo.ToString;
+valoresh.Cells[1,7]:=pisos[id].estado.ToString;
+valoresh.Cells[1,8]:=pisos[id].precio.ToString;
+
+
+if pisos[id].propietario=1 then Begin
+        shape2.Brush.Color:=clLime;
+        Button3.Enabled:=false;  End else
+        Begin
+          shape1.Brush.Color:=clWhite;
+          Button3.Enabled:=true;
+        End;
+       // Showmessage('pisoId='+inttostr(id) );
+fotopiso.Picture.LoadFromFile(pisos[id].foto);
+
+                END;   // end pisos
 
 
 
+end;
+// compra 1 piso
 
-(*
-tdinero.Text:=Fglobal.DimeVJugador('dinero');
+procedure Tformcompras.Button3Click(Sender: TObject);
+begin
+Compra('piso',idactualH);
 
-FGlobal.CargarCamionesF;
+RellenaPantalla;
+end;
 
-if switch1.IsChecked then  Begin
-panel1.Visible:=true;
 
-izquierda.Bitmap.Assign(izquierda2.Bitmap);
-if idc=numerocamionesjugador then derecha.Bitmap.Assign(derecha2.Bitmap)
-                             else derecha.Bitmap.Assign(derecha1.Bitmap);
 
-      fglobal.lresource(foto,camiones[idc].foto);
-    tmodelo.Text:=camiones[idc].modelo;
-    tpma.Text:=inttostr(camiones[idc].pma);
-    tl100.Text:=inttostr(camiones[idc].l100);
-    testado.Text:=inttostr(camiones[idc].estado);
-    tprecio.Text:=inttostr(camiones[idc].precio);
-    tkm.Text:=inttostr(camiones[idc].km);
-    tmatricula.Text:=camiones[idc].matricula;
-    tgasoil.Text:=inttostr(camiones[idc].gasoil);
-    tcv.Text:=inttostr(camiones[idc].cv);
-    tciudad.Text:=Fglobal.DimeTabla('ciudad', 'idciudad', '', 'nombre', camiones[idc].idciudadactual);
+   (*
+  CargaPisos
+  -solo carga pisos del mes y año
+  si movimiento=1 recorre hacia la derecha
+  si movimiento=0 recorre hacia la izquierda
+  *)
+procedure Tformcompras.CargaPisos(movimiento: integer; reset: boolean);
+var
+i, x, y, z, rst: integer;
+begin
 
-  if camiones[id-c].idconductor=0 then
-    tconductor.Text:='SIN CONDUCTOR' else
-    tconductor.Text:=Fglobal.DimeTabla('conductores', 'idconductor', '', 'nombre', camiones[idc].idconductor);
-                End else
-                Begin
-panel1.Visible:=false;
-      fglobal.lresource(foto,fabrica[idc].foto);
-    tmodelo.Text:=fabrica[idc].modelo;
-    tpma.Text:=inttostr(fabrica[idc].pma);
-    tl100.Text:=inttostr(fabrica[idc].l100);
-    testado.Text:=inttostr(fabrica[idc].estado);
-    tprecio.Text:=inttostr(fabrica[idc].precio);
-    tkm.Text:=inttostr(fabrica[idc].km);
-    tmatricula.Text:=fabrica[idc].matricula;
-    tgasoil.Text:=inttostr(fabrica[idc].gasoil);
-    tcv.Text:=inttostr(fabrica[idc].cv);
+// esto por si empezamos desde el primer objeto
+if reset=true then rst:=0 else rst:=1;
 
-  if camiones[idc].idconductor=0 then
-    tconductor.Text:='SIN CONDUCTOR' else
-    tconductor.Text:=Fglobal.DimeTabla('conductores', 'idconductor', '', 'nombre', camiones[idc].idconductor);
+if movimiento=1 then Begin
+z:=idactualH+rst;
 
-                End;
-                *)
+// recorre desde el coche actual (id) hasta el final
+for i := z to numeropisos do begin
+
+x:=fechajuego.Month;
+y:=fechajuego.Year;
+
+if (y>=pisos[i].anyo) and (ciudadactual=global1.pisos[i].ciudad) then
+                                                    Begin
+//Showmessage(inttostr(i)+'-'+coches[i].nombrecoche);
+
+                                        CargaPropiedadesForm(i, 2);
+                                        exit;
+                                                   End;
+
+                          end;
+                      End else
+z:=idactualH-rst;
+// recorre desde el coche actual (id) atrás hasta el inicio (1)
+for i := z downto 1 do begin
+
+x:=fechajuego.Month;
+y:=fechajuego.Year;
+
+if (y>=pisos[i].anyo) and (ciudadactual=global1.pisos[i].ciudad) then Begin
+//Showmessage(inttostr(i)+'-'+coches[i].nombrecoche);
+
+                                        CargaPropiedadesForm(i, 2);
+                                        exit;
+                                                   End;
+
+
+                          end;
+
 end;
 
 
@@ -232,15 +281,17 @@ end;
   si movimiento=1 recorre hacia la derecha
   si movimiento=0 recorre hacia la izquierda
   *)
-procedure Tformcompras.CargaVehiculos(movimiento: integer);
+procedure Tformcompras.CargaVehiculos(movimiento: integer; reset: boolean);
 var
-i, x, y, z: integer;
+i, x, y, z, rst: integer;
 begin
 
 
-if movimiento=1 then Begin
-z:=idactual+1;
+// esto por si empezamos desde el primer objeto
+if reset=true then rst:=0 else rst:=1;
 
+if movimiento=1 then Begin
+z:=idactual+rst;
 // recorre desde el coche actual (id) hasta el final
 for i := z to numerovehiculos do begin
 
@@ -250,26 +301,25 @@ y:=fechajuego.Year;
 if (x>=coches[i].mes) and (y>=coches[i].anyo) then Begin
 //Showmessage(inttostr(i)+'-'+coches[i].nombrecoche);
 
-                                        CargaVehiculoForm(i);
+                                        CargaPropiedadesForm(i, 1);
                                         exit;
                                                    End;
 
                           end;
                       End else
-z:=idactual-1;
+z:=idactual-rst;
 // recorre desde el coche actual (id) atrás hasta el inicio (1)
 for i := z downto 1 do begin
 
 x:=fechajuego.Month;
 y:=fechajuego.Year;
-(*
-if (x>=coches[i].mes) and (y>=coches[i].anyo) then Begin
-Showmessage(inttostr(i)+'-'+coches[i].nombrecoche);
 
-                                        CargaVehiculoForm(i);
+if (x>=coches[i].mes) and (y>=coches[i].anyo) then Begin
+
+                                        CargaPropiedadesForm(i, 1);
                                         exit;
                                                    End;
-                                                   *)
+
 
                           end;
 
@@ -280,12 +330,19 @@ end;
 procedure Tformcompras.dereClick(Sender: TObject);
 begin
 
-CargaVehiculos(1);
+CargaVehiculos(1, false);
 
   RellenaPantalla;
 end;
 
 
+
+procedure Tformcompras.derhClick(Sender: TObject);
+begin
+  CargaPisos(1, false);
+
+  RellenaPantalla;
+end;
 
 procedure Tformcompras.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
@@ -299,8 +356,11 @@ begin
 
 //PasaTurnoP;
 idactual:=1;
+idactualH:=1;
 
- CargaVehiculos(1);
+ CargaVehiculos(1, true);
+
+ CargaPisos(1, true);
 
 
 RellenaPantalla;
@@ -310,7 +370,14 @@ end;
 procedure Tformcompras.izqClick(Sender: TObject);
 begin
 
-CargaVehiculos(0);
+CargaVehiculos(0, false);
+
+  RellenaPantalla;
+end;
+
+procedure Tformcompras.izqhClick(Sender: TObject);
+begin
+CargaPisos(0, false);
 
   RellenaPantalla;
 end;

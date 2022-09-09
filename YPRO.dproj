@@ -110,10 +110,6 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Unit5.pas"/>
-        <DCCReference Include="Unit6.pas">
-            <Form>formbanco</Form>
-            <FormType>fmx</FormType>
-        </DCCReference>
         <DCCReference Include="Unit7.pas">
             <Form>formprensa</Form>
             <FormType>fmx</FormType>
@@ -126,10 +122,6 @@
             <Form>formempresa</Form>
             <FormType>fmx</FormType>
         </DCCReference>
-        <DCCReference Include="Unit10.pas">
-            <Form>formbiz</Form>
-            <FormType>fmx</FormType>
-        </DCCReference>
         <DCCReference Include="UnitZero.pas">
             <Form>formZero</Form>
             <FormType>dfm</FormType>
@@ -140,6 +132,14 @@
         </DCCReference>
         <DCCReference Include="UnitBUY.pas">
             <Form>formcompras</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="UnitBank.pas">
+            <Form>formbank</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Unitbiz.pas">
+            <Form>formbiz</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <BuildConfiguration Include="Base">
