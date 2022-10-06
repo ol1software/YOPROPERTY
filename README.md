@@ -1,8 +1,7 @@
-# YProWin
+# YOPROPERTY
 GAME
 
 *DESCRIPTION 
-ES Juego de estrategia tipo negocios, compraventa.
 EN Business game, turns mode
 
 *SOURCE 
@@ -21,3 +20,5 @@ This is a business/managerial/sim game.
 For Windows 
 
 Buy/rent and invest money, in this turn-based game for Windows computer.
+
+ES Juego de estrategia tipo negocios, compraventa.
