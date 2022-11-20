@@ -5,7 +5,7 @@ interface
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.StdCtrls,
-  FMX.Controls.Presentation, FMX.Edit;
+  FMX.Controls.Presentation, FMX.Edit, FMX.Memo.Types, FMX.ScrollBox, FMX.Memo;
 
 type
   Tformvarios = class(TForm)
@@ -13,11 +13,8 @@ type
     ImageControl5: TImageControl;
     izquierda1: TImageControl;
     derecha1: TImageControl;
-    Button1: TButton;
     Button2: TButton;
-    Button3: TButton;
-    Button4: TButton;
-    Button5: TButton;
+    Memo1: TMemo;
     procedure ImageControl2Click(Sender: TObject);
     procedure ImageControl5Click(Sender: TObject);
   private

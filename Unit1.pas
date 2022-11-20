@@ -6,35 +6,23 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls, Vcl.ToolWin, Vcl.StdCtrls,
   Vcl.Imaging.pngimage, Vcl.ExtCtrls, Vcl.Imaging.jpeg, Vcl.CheckLst, Vcl.Menus,
-  Unitvehiculos, Vcl.NumberBox, Vcl.Buttons, Vcl.ColorGrd;
+  Vcl.NumberBox, Vcl.Buttons, Vcl.ColorGrd, FireDAC.Stan.ExprFuncs,
+  FireDAC.Phys.SQLiteWrapper.Stat, FireDAC.Phys.SQLiteDef, FireDAC.Stan.Intf,
+  FireDAC.Phys, FireDAC.Phys.SQLite, System.ImageList, Vcl.ImgList, Vcl.Grids,
+  Vcl.Samples.Calendar;
 
 type
   TForm1 = class(TForm)
     ToolBar1: TToolBar;
     ToolButton1: TToolButton;
-    ToolButton3: TToolButton;
     ToolButton4: TToolButton;
     StatusBar1: TStatusBar;
     MainMenu1: TMainMenu;
-    NewGame1: TMenuItem;
-    Savegame1: TMenuItem;
-    Save1: TMenuItem;
-    Load1: TMenuItem;
-    ToolButton6: TToolButton;
-    ToolButton7: TToolButton;
-    ToolButton8: TToolButton;
-    Buy1: TMenuItem;
-    Cars1: TMenuItem;
-    Houses1: TMenuItem;
-    Other1: TMenuItem;
     contenedor1: TPageControl;
-    TabSheet1: TTabSheet;
-    TabSheet2: TTabSheet;
-    TabControl1: TTabControl;
+    TABMAIN: TTabSheet;
     Panel1: TPanel;
     Label1: TLabel;
     l2: TLabel;
-    calendario: TMonthCalendar;
     barraturno: TProgressBar;
     ingresostxt: TStaticText;
     gastostxt: TStaticText;
@@ -44,27 +32,38 @@ type
     numerodiatxt: TStaticText;
     mestxt: TStaticText;
     DateTimePicker1: TDateTimePicker;
-    Image2: TImage;
-    Image4: TImage;
-    Image3: TImage;
-    ToolButton9: TToolButton;
     ToolButton2: TToolButton;
     imagenmapa: TImage;
     empresatxt: TStaticText;
     ciudadtxt: TStaticText;
-    barraviaja: TTrackBar;
-    botonviaja: TBitBtn;
-    ciudad2: TStaticText;
     menu1: TMenuItem;
-    Memoingresos: TMemo;
+    FDPhysSQLiteDriverLink1: TFDPhysSQLiteDriverLink;
+    ImageList1: TImageList;
+    Game1: TMenuItem;
+    Save1: TMenuItem;
+    Load1: TMenuItem;
+    Restart1: TMenuItem;
+    tabmapa: TTabSheet;
+    mapa2: TImage;
+    ciudadtxt2: TStaticText;
+    fondo: TImage;
+    calendar1: TCalendar;
+    mensajeciudad: TStatusBar;
+    ToolButton3: TToolButton;
+    botonviaja: TBitBtn;
+    barraviaja: TTrackBar;
+    fondohelp: TImage;
     Memogastos: TMemo;
-    Timer1: TTimer;
-    Timer2: TTimer;
-    CheckBox1: TCheckBox;
+    memoeventos: TMemo;
+    ciudad2: TStaticText;
+    dineroprincipal: TStaticText;
+    ToolButton5: TToolButton;
+    ToolButton6: TToolButton;
     procedure ToolButton4Click(Sender: TObject);
 
 
   procedure RellenaPantalla;
+        procedure Start0;
         procedure Start;
 
     procedure Viajar(ciudad: integer);
@@ -75,8 +74,23 @@ type
     procedure barraviajaChange(Sender: TObject);
     procedure botonviajaClick(Sender: TObject);
     procedure menu1Click(Sender: TObject);
+    procedure Image1Click(Sender: TObject);
+    procedure ToolButton3Click(Sender: TObject);
+    procedure bnewgameClick(Sender: TObject);
+    procedure bhelpClick(Sender: TObject);
+    procedure imagenmapaClick(Sender: TObject);
+    procedure BitBtn1Click(Sender: TObject);
+    procedure mapa2Click(Sender: TObject);
+    procedure fondoClick(Sender: TObject);
+    procedure dinerotxtClick(Sender: TObject);
+    procedure tabmarketEnter(Sender: TObject);
+    procedure fondohelpClick(Sender: TObject);
     procedure ToolButton6Click(Sender: TObject);
-    procedure CheckBox1Click(Sender: TObject);
+    procedure calendar1Click(Sender: TObject);
+    procedure ciudad2Click(Sender: TObject);
+    procedure empresatxtClick(Sender: TObject);
+    procedure ToolButton5Click(Sender: TObject);
+    procedure Restart1Click(Sender: TObject);
 
   private
     { Private declarations }
@@ -86,122 +100,7 @@ type
 
 var
   Form1: TForm1;
-  {
-TABLAS
------------
-JUEGO
-COCHES
-PISOS
-TRABAJO
-CAJA
-EMPRESACCIONES
-PRESTAMOS
-EVENTOS
-
-----------
-
-
-
-  TABLA.juego
-<nombre
-JOES
-<caja (euros)
-540.000
-<prestamoEuros
-<prestamoMes
-<diasemana
-1-7.LMXJVSD
-1
-<dia
-2
-<mes
-1
-<anyo
-2000
-<turno 1-4
-0
-
-
-
-
-````
-COCHES
-PISOS
-
-CAJA
-ACCIONES
-PRESTAMOS
-TRABAJO
-EVENTO
-
-````
-PISOS
---
-idinmueble,
-String nice,
-barrio
-int antiguedad,
-int calidad
-int tamanyo,
- int valor,
-
- int anyo,
- String nombrecalle
-string barrio
-int devaluacionxanyo%
-
-
-
-   ``
-   `COCHES
-   --
-
-
-TABLA.VEHICULOS
-    idvehiculo
-    1
-    2
-
-    modelo
-    mercedes Clase A 200 7G-DCT
-    toyota land cruiser 150
-
-    calidad 0-100
-    85
-    70
-
-
-    tipo
-    3
-    5
-    1 mini
-    2 compacto
-    3 grande
-    4 deportivo
-    5 TT
-
-    valor EUR
-    38.901
-    62.900
-
-    prestigio 1-5
-    4
-    3
-
-    Combustible 1-2 (gas-ele)
-    1
-    1
-
-	CV
-	150
-	230
-
-    Seguro
-    900
-    1200
-
- }
-
+  
 
    (*
   INSTRUCCIONES
@@ -214,30 +113,42 @@ implementation
 
 {$R *.dfm}
 
-uses Unit2, UnitZero, global1, UnitBUY, Unit8, Unit10, UnitBank;
+uses global1, UnitBUY, Unit8, UnitBank, Uniti;
 
 // NUEVO JUEGO BTN
 // *********************************************
 procedure TForm1.NewGame1Click(Sender: TObject);
 begin
 
-// *
-
-Start;
+Start0;
 
 end;
 
-(*
-  GASTOSSEMANAL
-  GASTOSMENSUAL
-  INGRESOSEMANAL
-  INGRESOSMENSUAL
-  -SUELDO
 
-  GASTOPUNTUAL
-  INGRESOPUNTUAL
-*)
+// -----------------------------------------
+// COMIENZO DEL JUEGO PREGUNTANDO
+(* ***************************************
+ ************************************
+ ************************************
+ ************************************
+  *)
+procedure TForm1.Start0;
+var b: boolean;
 
+begin
+
+if juegoempezado=false then
+
+if Vcl.Dialogs.MessageDlg('PLAY now?',
+    mtConfirmation, [mbYes, mbNo], 0, mbYes) = mrYes then Start;
+end;
+
+
+
+procedure TForm1.tabmarketEnter(Sender: TObject);
+begin
+
+end;
 
 // -----------------------------------------
 // COMIENZO DEL JUEGO
@@ -247,8 +158,32 @@ end;
  ************************************
   *)
 procedure TForm1.Start;
+var b: boolean;
 
 begin
+
+ShowMessage('WELCOME! PLEASE TELL ME YOUR NAME');
+
+nomjugador:='Philips McTominay';
+nomempresa:='MicroGo Ltd';
+
+b:=InputQuery('NEW GAME START!!', ' CEO (Your name)...', nomjugador);
+InputQuery('TU EMPRESA!!', ' Comienzas como mozo en la empresa...', nomempresa);
+
+if not b then exit;
+
+
+
+iform.ShowModal;
+
+juegoempezado:=true;
+
+
+
+
+
+
+statusbar1.Show;
 
 Turno:=1;
 // al comenzar, se añade un dia
@@ -264,26 +199,26 @@ global1.CargarBases;
 
 // fin variables
 
-nomempresa:=InputBox('Nombre de tu empresa', 'Prompt', 'Enterprise');
 
 
-ciudadactual:=2; // 1-madrid, 2-barcelona, 3-valencia, 4-malaga
+ciudadactual:=1; // 1-madrid, 2-barcelona, 3-valencia, 4-malaga
 sueldoactual:=dimesueldo;
 
 
 // Pasa una parte del turno (1 día)
-PasaTurnoP;
+PasaTurnoDia;
 
 
 contenedor1.Visible:=true;
-toolbar1.Enabled:=true;
+toolbar1.Visible:=true;
+
 
 
 RellenaPantalla;
 // SE RELLENA LA PANTALLA, Y SE ESPERA A LAS ACCIONES DEL USUARIO PARA:
 // 1- COMPRAR/VENDER/INVERTIR
 
-
+    Ayuda;
 
 
 end;      // END START
@@ -302,7 +237,10 @@ end;      // END START
   - rellena los campos existentes en Form1
   *)
   procedure TForm1.RellenaPantalla;
+  var i: integer;  c: string;
   begin
+
+  i:=numerogastos;
 
   // de 1 a 7
   barraturno.Position:=diasemana;
@@ -312,22 +250,25 @@ end;      // END START
 
 
   // dinero
-dinerotxt.Caption:=CurrtoStrF(dinero,ffCurrency, 0 );
+c:=CurrtoStrF(dinero,ffCurrency, 0 );
+dineroprincipal.Caption:=c;
 
 // ingresos y gastos
-if ingresoturn<>0 then begin
-    memoingresos.Lines.Add(inttostr(ingresoturn));
+
+if ingresoturn<>0 then begin     // hay ingreso/s este turno
+    //memoingresos.Lines.Add( gastosingresos[i].nombre+'='+inttostr( gastosingresos[i].precio ) );
     ingresostxt.Caption:=CurrtoStrF(ingresoturn,ffCurrency, 0 );
                        end;
 
-if gastoturn<>0 then begin
-      memogastos.Lines.Add(inttostr(gastoturn));
+if gastoturn<>0 then begin       // hay gasto/s este turno
+      memogastos.Lines.Add( gastosingresos[i].nombre+'='+inttostr(gastosingresos[i].precio));
       gastostxt.Caption:=CurrtoStrF(gastoturn,ffCurrency, 0 );
                       end;
 
 
 // calendarios
-calendario.Date:=global1.fechajuego;
+calendar1.CalendarDate:=global1.fechajuego;
+
 datetimepicker1.DateTime:=global1.fechajuego;
 
 // fecha en texto
@@ -336,10 +277,16 @@ numerodiatxt.Caption:=numdiastr;
 mestxt.Caption:=messtr;
 
 // ciudad actual
+mensajeciudad.SimpleText:='Trabajas en la empresa '+nomempresa+'. Estás ahora mismo en '+ciudadestexto[ciudadactual];
 ciudadtxt.Caption:=ciudadestexto[ciudadactual];
 barraviaja.Position:=ciudadactual;
 imagenmapa.Picture.LoadFromFile(rutajpg+'mapa'+inttostr(ciudadactual)+'.jpg');
 
+ciudadtxt2.Caption:=ciudadestexto[ciudadactual];
+mapa2.Picture.LoadFromFile(rutajpg+'mapa'+inttostr(ciudadactual)+'.jpg');
+
+
+// se resetea el numero de gastos/ingresos para el sig. dia
 ingresoturn:=0;
 gastoturn:=0;
 
@@ -351,7 +298,12 @@ gastoturn:=0;
 
 
 
-  (*
+  procedure TForm1.Restart1Click(Sender: TObject);
+begin
+Start0;
+end;
+
+(*
             Viaja a la ciudad indicada
             -------
 *)
@@ -368,7 +320,10 @@ gastoturn:=0;
 
      gastoturn:=gastoturn+i;
 
-     PasaTurnoP;
+     PasaTurnoDia;
+
+           ShowMessage('****LLEGANDO A '+ciudadestexto[ciudad]);
+                 ShowMessage('BIENVENIDO #### '+ciudadestexto[ciudad]+'#### ');
      form1.RellenaPantalla;
 
       end;
@@ -380,13 +335,46 @@ gastoturn:=0;
   procedure TForm1.barraviajaChange(Sender: TObject);
 begin
 
-ciudad2.Caption:=ciudadestexto[barraviaja.Position];
+Showmessage('PULSA EN EL BOTÓN VIAJAR PARA IR A '+ ciudadestexto[barraviaja.Position]);
+
+if barraviaja.Position=ciudadactual then
+
+ciudad2.Caption:=' >>> elige una ciudad destino para viajar con la barra inferior.'
+else
+ciudad2.Caption:='¿viajar a...?'+ciudadestexto[barraviaja.Position];
+
+end;
+
+procedure TForm1.bhelpClick(Sender: TObject);
+begin
+iform.ShowModal;
+end;
+
+procedure TForm1.BitBtn1Click(Sender: TObject);
+begin
+contenedor1.TabIndex:=0;
+end;
+
+procedure TForm1.bnewgameClick(Sender: TObject);
+begin
+
+Start0;
 
 end;
 
 procedure TForm1.botonviajaClick(Sender: TObject);
 begin
-if barraviaja.Position<>ciudadactual then Viajar(barraviaja.Position);
+if barraviaja.Position<>ciudadactual then Viajar(barraviaja.Position) else
+ ShowMessage('>>> elige una ciudad destino para viajar con la barra inferior.!');
+
+
+end;
+
+procedure TForm1.calendar1Click(Sender: TObject);
+begin
+Curro;
+PasaTurnoDia;
+RellenaPantalla;
 end;
 
 procedure TForm1.Cars1Click(Sender: TObject);
@@ -396,15 +384,65 @@ end;
 
 
 
-  procedure TForm1.CheckBox1Click(Sender: TObject);
+  procedure TForm1.ciudad2Click(Sender: TObject);
 begin
-  statusbar1.Visible:=checkbox1.Checked;
+if barraviaja.Position<>ciudadactual then Viajar(barraviaja.Position) else
+ ShowMessage('>>> elige una ciudad destino para viajar con la barra inferior.!');
+end;
+
+procedure TForm1.dinerotxtClick(Sender: TObject);
+begin
+contenedor1.TabIndex:=1;
+end;
+
+procedure TForm1.empresatxtClick(Sender: TObject);
+begin
+
+ShowMessage('Trabajas en la empresa '+nomempresa);
+
+end;
+
+procedure TForm1.fondoClick(Sender: TObject);
+begin
+
+Start0;
+
+end;
+
+procedure TForm1.fondohelpClick(Sender: TObject);
+begin
+iform.ShowModal;
+end;
+
+procedure TForm1.Image1Click(Sender: TObject);
+begin
+sTART;
+end;
+
+procedure TForm1.imagenmapaClick(Sender: TObject);
+begin
+contenedor1.TabIndex:=2;
+end;
+
+procedure TForm1.mapa2Click(Sender: TObject);
+var i: integer;
+begin
+
+i:=barraviaja.Max;
+
+if barraviaja.Position<i then barraviaja.Position:=barraviaja.Position+1
+                         else barraviaja.Position:=0;
+
+
+
+
 
 end;
 
 procedure TForm1.menu1Click(Sender: TObject);
 begin
-formvarios.showmodal;
+iform.ShowModal;
+
 end;
 
 (*
@@ -415,19 +453,35 @@ begin
 formcompras.show;
 end;
 
-  (*
+  procedure TForm1.ToolButton3Click(Sender: TObject);
+begin
+contenedor1.ActivePageIndex:=1;
+
+end;
+
+(*
   boton pasa turno
   *)
 procedure TForm1.ToolButton4Click(Sender: TObject);
 begin
-PasaTurnoP;
+Curro;
+PasaTurnoDia;
 RellenaPantalla;
   //listaturno.Items[1].checked:=true;
 end;
 
+procedure TForm1.ToolButton5Click(Sender: TObject);
+VAR
+c: string;
+begin
+
+Ayuda;
+
+end;
+
 procedure TForm1.ToolButton6Click(Sender: TObject);
 begin
-formbank.showmodal;
+contenedor1.ActivePageIndex:=0;
 end;
 
 end.

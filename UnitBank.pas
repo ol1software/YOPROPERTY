@@ -18,6 +18,8 @@ type
     ComboBox2: TComboBox;
     ListBox3: TListBox;
     ComboBox3: TComboBox;
+    StaticText1: TStaticText;
+    ComboBox4: TComboBox;
     procedure FormShow(Sender: TObject);
     procedure Button1Click(Sender: TObject);
   private

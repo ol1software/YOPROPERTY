@@ -4,14 +4,14 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, DateUtils, FireDAC.Stan.Intf,
-  FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
-  FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
-  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, FireDAC.UI.Intf,
-  FireDAC.Stan.Def, FireDAC.Stan.Pool, FireDAC.Phys, FireDAC.VCLUI.Wait,
-  FireDAC.Phys.TDBX, FireDAC.Phys.TDBXDef, FireDAC.Phys.SQLite,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, DateUtils,
+  Data.DB,  StrUtils, Math, FireDAC.Stan.Intf, FireDAC.Stan.Option,
+  FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
+  FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, FireDAC.UI.Intf,
+  FireDAC.Stan.Def, FireDAC.Stan.Pool, FireDAC.Phys, FireDAC.Phys.SQLite,
   FireDAC.Phys.SQLiteDef, FireDAC.Stan.ExprFuncs,
-  FireDAC.Phys.SQLiteWrapper.Stat, StrUtils;
+  FireDAC.Phys.SQLiteWrapper.Stat, FireDAC.VCLUI.Wait, FireDAC.Comp.Client,
+  FireDAC.Comp.DataSet;
 
 type
   TFGlobal1 = class(TForm)
@@ -24,11 +24,12 @@ type
 
   end;
 
-    // tabla Gastos
-  TGastos= record
+    // tabla TGastosIngresos
+    // si es negativo es gasto, positivo = ingreso
+  TGastosIngresos= record
     id,
   precio: integer;
-  nombre,foto: string;
+  nombre: string;
             end;
 
 
@@ -36,36 +37,6 @@ type
             CREATE TABLE "pisos" (
 
             *)
-  // tabla Pisos
-  TPisos= record
-
-	id,
-  portal,
-	planta,
-  ciudad,
-	calidadbarrio,
-	metros,
-	dormitorios,
-banyos,
-	calidad,
-mes,
-anyo,
-	preciocompra,
-	mescompra,
-	anyocompra,
-	estado,
-	precio,
-	alquiler,
-	propietario,
-	rentador,
-	foto2,
-	foto3: integer;
-
-calle,
-	letra,
-	barrio,
-  	foto: string;
-          end;
 
 
 
@@ -78,10 +49,9 @@ calle,
   mescontratado,
   anyocontratado: integer;
     nombrepuesto: string;
-
-
-
   end;
+
+
   // tabla Coches
   TCoches= record
 
@@ -94,6 +64,7 @@ calle,
   ruedas,
   precio,
   preciocompra,
+   precioofrecido,
   mescompra,
   anyocompra,
   estado, propietario,
@@ -131,21 +102,30 @@ calle,
 
       procedure InicializaVariables;
 
-      procedure PasaTurnoP;
-      procedure PasaTurno;
+      procedure Curro;
+
+      procedure PasaTurnoDia;
+      procedure PasaTurnoSemana;
+      procedure PasaTurnoMes;
 
       procedure CargarBases;
       procedure CargarGastos;
 
-       procedure Compra(tipo: string; id: integer);
+      procedure AnyadeGasto(nom: string; ran: integer);
+
+       procedure CompraObjeto(tipo: string; id: integer);
+        procedure VendeObjeto(id: integer);
+
       procedure Guarda(tipo: string; id: integer);
 
       function Dimesueldo: integer;
-      procedure PasaMes;
 
       procedure RecalculaValoresCoches(tipo: integer);
 
       procedure MensajeCoolbar(c: string);
+
+      procedure Ayuda;
+      procedure AyudaBuy;
 
 
 const
@@ -156,11 +136,11 @@ const
 var
   FGlobal1: TFGlobal1;
     coches: array[1..75] of TCoches;
-    pisos: array[1..75] of TPisos;
+
   //  objetos: array[1..75] of TObjetos;
 
     trabajos: array[1..75] of TTrabajos;
-    gastos: array[1..75] of TGastos;
+    gastosingresos: array[1..75] of TGastosIngresos;
 
 
 
@@ -176,6 +156,7 @@ var
 
     days: array[1..7] of string;
   idjuego, idciudadactual, dinero, experiencia, power,
+  numerogastos,
   diasemana,   // 1-7 L a D
   ingresoturn, // ingreso y gasto por turno
   gastoturn,
@@ -191,6 +172,8 @@ var
   diasemanastr, numdiastr, messtr: string;
   nomjugador, nomempresa, hora: string;
 
+  juegoempezado: boolean;
+
   // Cada TURNO esta formado por 7 TurnoParte
   TurnoParte1, Turno, i: integer;
 
@@ -201,6 +184,32 @@ implementation
 {$R *.dfm}
 
 uses Unit1;
+
+
+(*
+            muestra un mensaje de ayuda
+*)
+procedure Ayuda;
+var c: string;
+begin
+if ciudadactual>1 then ciudadactual:=1;
+
+  c:='Trabajas en la empresa '+nomempresa+'. Estás ahora mismo en '+ciudadestexto[ciudadactual];
+c:=c+'## Para continuar, puedes TRABAJAR, o COMPRAR COCHES, o VIAJAR ##';
+ShowMessage(c);
+end;
+
+
+procedure AyudaBuy;
+var c: string;
+begin
+
+Showmessage('AQUÍ PUEDES COMPRAR COCHES O VENDER EL TUYO.');
+
+Showmessage('UTILIZA LOS ICONOS ROJOS PARA DESPLAZARTE POR LOS COCHES DISPONIBLES. PARA COMPRAR PULSA EN COMPRAR COCHE (para vender VENDER MI COCHE)');
+end;
+
+
 
 (*
             decodifica la fecha
@@ -257,7 +266,7 @@ begin
 
 x:=random(10);
 
-
+        form1.memoeventos.Lines.Add(fechajuego.ToString+'> '+c);
         form1.StatusBar1.Panels[0].Text:=c;
 
 
@@ -284,19 +293,63 @@ r2:=random(10);
 // se sortea, y gasto
 if r2<2 then Begin
 c:='Pago del IBI, te cobran '+inttostr(ran);
-gastoturn:=gastoturn+ran;
+AnyadeGasto(c, ran);
+
              End;
 
 // se sortea, e ingresas
 if r2>8 then Begin
 c:='Te encuentras un maletin con '+inttostr(ran);
-ingresoturn:=ingresoturn+ran;
+AnyadeGasto(c, ran);
+
              End;
 
              MensajeCoolbar(c);
 
 end;
 
+
+
+(*
+AnyadeGasto
+  -- añade un gasto (tabla)
+ -- resta del dinero
+*)
+procedure AnyadeGasto(nom: string; ran: integer);
+var
+c: string;
+i, valor: integer;
+begin
+
+i:=Min(0, ran);
+
+if i=0 then Begin  // es positivo = ingreso
+  ingresoturn:=ingresoturn+ran;
+
+
+            End else
+            // es gasto
+                      Begin
+
+            gastoturn:=gastoturn+ran;
+
+                      End;
+
+
+
+
+
+  numerogastos:=numerogastos+1;
+i:=numerogastos;
+
+gastosingresos[i].id:=i;
+gastosingresos[i].nombre:=nom;
+gastosingresos[i].precio:=ran;
+
+dinero:=dinero+ran;
+
+
+end;
 
 
 
@@ -309,19 +362,24 @@ Aloja al jugador en un hotel, o en piso (si dispone de él)
 *)
 function Alojamiento(city: integer): string;
 var
-c: string;
+c, msg: string;
 begin
      if alojamientociudad[city]=0 then
+
+     // gastas hotel
                      begin
-  i:=Random(100)+50;
-  c:='No tienes piso en la ciudad, gastas en Hotel '+inttostr(i)+'euros';
+  i:=-(Random(100)+50);
+  msg:='Día de trabajo & ';
+  msg:=msg+'Gastas en Hotel '+inttostr(i)+'euros';
+  c:='Hotel Gran Via';
                      end else
-   c:='Llegas a tu piso';
+                     // no gastas, tienes piso
+   msg:='Llegas a tu piso';
+
+                     AnyadeGasto(c, i);
 
 
-                     gastoturn:=gastoturn+i;
-                     dinero:=dinero-i;
-                     MensajeCoolbar(c);
+                     MensajeCoolbar(msg);
 end;
 
 
@@ -342,8 +400,8 @@ end;
  RecalculaValores
  Aquí se van:
  - recalculando el valor de las propiedades (coches)
- 1: recalcula según el estado del coche y paso de tiempo
- 2: recalcula según 1 y además random
+recalcula según el estado del coche y paso de tiempo
+ además random
 *)
 procedure RecalculaValoresCoches(tipo: integer);
 var
@@ -362,7 +420,7 @@ for i := 1 to numerovehiculos do begin
 if (y>=coches[i].anyo) AND (coches[i].anyodisponible>=coches[i].anyo)  then
                                    BEGIN
 a:=coches[i].anyo;
-pco:=coches[i].preciocompra;
+pco:=coches[i].precio;
 e:=coches[i].estado; // % de buen estado
 
 
@@ -383,17 +441,57 @@ if r>70 then e:=e+r2 else e:=e-r2;
 pcf:=pco*e; // el % de buen estado es el precio que queda
 pcf:=pcf/100;
 
-coches[i].preciocompra:=Trunc(pcf);
+//***************** precio final
+
+coches[i].precio:=Trunc(pcf);
+
+//precio ofertado según random
+z:=Trunc(coches[i].precio/3); // solo variamos el precio como máx 1/3 del valor
+
+x:=Random(z);
+y:=Random(10);
+
+if y<5 then x:=-x; // se ofrece menos
+
+
+coches[i].precioofrecido:=coches[i].precio+x;
                                    END;
 
                                  end;
 
 
+end;
 
 
 
+(*
+ Curro
+Curra un dia
+*)
+procedure Curro;
+var
+cad: array[1..10] of string;
+x: integer;
+begin
+
+RecalculaValoresCoches(1);
+
+cad[1]:='currando un dia en tu ciudad. No hay Novedad';
+cad[2]:='Paseando por la city despúes del curro.No hay Novedad';
+cad[3]:='Tempus fugit';
+cad[4]:='Otro día más, o menos';
+cad[4]:='8 horas de trabajo; continue';
+
+x:=Random(4)+1;
+
+ShowMessage(cad[x]);
+
+//  if .. Evento
 
 end;
+
+
+
 
 
 (*
@@ -401,7 +499,7 @@ end;
  Aquí se van:
  - sumando beneficios y gastos
 *)
-procedure PasaMes;
+procedure PasaTurnoMes;
 begin
 
 ingresoturn:=ingresoturn+sueldoactual;
@@ -411,10 +509,10 @@ Evento;
 fechajuego := fechajuego+1;
 DecodificaFecha(fechajuego);
 
-RecalculaValoresCoches(1);
+//RecalculaValoresCoches(1);
 
-            dinero:=dinero+ingresoturn;
-            dinero:=dinero-gastoturn;
+          //  dinero:=dinero+ingresoturn;
+          //   dinero:=dinero-gastoturn;
 
 
 end;
@@ -425,27 +523,24 @@ end;
  Aquí se van:
  - sumando beneficios y gastos
 *)
-procedure PasaTurnoP;
+procedure PasaTurnoDia;
 begin
 
 //Showmessage(inttostr(fechajuego.DayOfTheWeek));
    diasemana:=diasemana+1;
-   if fechajuego.DaysInMonth=fechajuego.Day then PasaMes
+   if fechajuego.DaysInMonth=fechajuego.Day then PasaTurnoMes // si es fin de mes, pasa el mes
      else
-   if fechajuego.DayOfTheWeek=7 then PasaTurno // si es domingo, pasa turno semanal
+   if fechajuego.DayOfTheWeek=7 then PasaTurnoSemana // si es domingo, pasa turno semanal
                                 else
           fechajuego := fechajuego+1; // si no pasa, sigue otro dia
 
 
 DecodificaFecha(fechajuego);
 
+// Gastos/Ingresos del Dia (alojamiento)
 Alojamiento(ciudadactual);
 
-         //   ingresoturn:=1500;
-        //    gastoturn:=Random(800);
 
-         //   ingresoturn:=ingresoturn-gastoturn;
-         //   dinero:=dinero+ingresoturn;
 end;
 
 
@@ -453,7 +548,7 @@ end;
 (*
  FIN del Turno SEMANA (7 partes), actualizando los datos
 *)
-procedure PasaTurno;
+procedure PasaTurnoSemana;
 begin
 
 
@@ -466,8 +561,8 @@ DecodificaFecha(fechajuego);
 diasemana:=1;
 
 
-            ingresoturn:=ingresoturn-gastoturn;
-            dinero:=dinero+ingresoturn;
+         //   ingresoturn:=ingresoturn-gastoturn;
+         //   dinero:=dinero+ingresoturn;
 end;
 
 
@@ -479,6 +574,8 @@ end;
   *)
 procedure InicializaVariables;
 begin
+ciudadactual:=1;
+
   ruta:=ExcludeTrailingPathDelimiter(ExtractFileDir(ExtractFilePath(paramstr(0))));
 ruta:=ExcludeTrailingPathDelimiter( ExtractFileDir(ExtractFilePath(ruta)) );
 ruta:=ExcludeTrailingPathDelimiter( ExtractFileDir(ExtractFilePath(ruta)) )+'\';   // ruta buena
@@ -493,48 +590,22 @@ end;
 
       (*
   ---Compra
-  -compra un piso/coche
+  -compra un coche
   *)
- procedure Compra(tipo: string; id: integer);
+ procedure CompraObjeto(tipo: string; id: integer);
  var
  i: integer;
   begin
 
-  if tipo='coches' then i:=0 else i:=1;
 
-  case I of
-      0: begin
 
           if dinero<coches[id].precio then
           Begin Showmessage('NO TIENES SUFICIENTE DINERO'); exit; end;
 
-              coches[id].propietario:=1;  //1 en "propietario" en coche[id]
-              coches[id].preciocompra:=coches[id].precio;
 
-  //  coches[id].idcoche:=id;
-     dinero:=dinero-coches[id].precio;
-     Guarda('coches',id);
-     ShowMessage('coche comprado');
-      PasaTurnoP;
+     Guarda('compra',id);
 
-                  end;
-
-      1: begin
-
-
-          if dinero<pisos[id].preciocompra then
-          Begin Showmessage('NO TIENES SUFICIENTE DINERO'); exit; end;
-
-              pisos[id].propietario:=1;  //1 en "propietario" en coche[id]
-              pisos[id].preciocompra:=pisos[id].precio;
-
-    //pisos[id].idcoche:=id;
-     dinero:=dinero-pisos[id].preciocompra;
-     Guarda('pisos',id);
-     ShowMessage('piso comprado');
-      PasaTurnoP;
-
-              end;
+      PasaTurnoDia;
 
   end;
 
@@ -543,30 +614,62 @@ end;
 
 
 
+      (*
+  ---venta
+  -vende un coche
+  *)
+ procedure VendeObjeto(id: integer);
+ var
+ i: integer;
+  begin
+
+     Guarda('venta',id);
+
+   Showmessage('Vendes tu coche a OCASIONCARS');
+
+      PasaTurnoDia;
+
   end;
+
 
  (*
  Guarda--
- -guarda un objeto existente, (coches pisos ) con el id
+ -guarda un objeto existente, (coches) con el id
+ tipo='compra' / 'venta'
 *)
 procedure Guarda(tipo: string; id: integer);
 var
 i, j, c: word;
+cad: string;
 begin
 
     with fglobal1 do Begin
+
+    (*        // COMENTADO PORQ DE MOMENTO NO QUEREMOS GUARDAR EN LA BD
+
        fdtable1.Active:=false;
 fdtable1.TableName:= tipo;
 fdtable1.Filter := 'id='+inttostr(id);
 fdtable1.Filtered := True;
 fdtable1.Active:=true;
 fdtable1.Edit;
+*)
 
 DecodeDate(fechajuego, i,j,c);
 //ShowMessage(inttostr(i));
 
-case IndexStr(tipo, ['coches','pisos'] ) of
+case IndexStr(tipo, ['compra','venta'] ) of
    0: begin
+
+        ShowMessage('Has comprado un coche. Modelo:'+coches[id].nombrecoche+', por: '+inttostr(coches[id].preciocompra));
+
+   //rellenar coches[id]
+   coches[id].propietario:=1;  //1 en "propietario" en coche[id]
+   coches[id].preciocompra:=coches[id].precio;
+   dinero:=dinero-coches[id].precio;
+
+          (*
+   fdtable1.FieldByName('id').value:=global1.coches[id].idcoche;
    fdtable1.FieldByName('propietario').value:=global1.coches[id].propietario;
   fdtable1.FieldByName('precio').value:=global1.coches[id].precio;
   fdtable1.FieldByName('estado').value:=global1.coches[id].estado;
@@ -574,23 +677,22 @@ case IndexStr(tipo, ['coches','pisos'] ) of
   fdtable1.FieldByName('mescompra').value:=fechajuego.Month;
   fdtable1.FieldByName('anyocompra').value:=fechajuego.Year;
   fdtable1.FieldByName('ciudad').value:=global1.coches[id].ciudad;
+  *)
+
       end;
 
 
    1: begin
-  fdtable1.FieldByName('propietario').value:=global1.pisos[id].propietario;
-  fdtable1.FieldByName('precio').value:=global1.pisos[id].precio;
-  fdtable1.FieldByName('estado').value:=global1.pisos[id].estado;
-  fdtable1.FieldByName('preciocompra').value:=global1.pisos[id].preciocompra;
-  fdtable1.FieldByName('mescompra').value:=global1.pisos[id].mescompra;
-  fdtable1.FieldByName('anyocompra').value:=global1.pisos[id].anyocompra;
-  fdtable1.FieldByName('ciudad').value:=global1.pisos[id].ciudad;
+      coches[id].propietario:=0;  //1 en "propietario" en coche[id]
+   coches[id].precio:=coches[id].preciocompra+Trunc(coches[id].preciocompra/2);
+   dinero:=dinero+coches[id].precioofrecido;
+
        end;
 end;
  // end case
 
 
-
+fdtable1.Edit;
 fdtable1.post;
                  end;
 end;
@@ -619,14 +721,13 @@ fdtable1.Active:=true;
 fdtable1.UpdateTransaction;
 
 c:=fdtable1.RecordCount;
-//numerocamiones:=c;
+numerogastos:=c;
 
 for i := 1 to c do begin
 
-     global1.gastos[i].id:=fdtable1.FieldByName('id').AsInteger;
-     global1.gastos[i].nombre:=fdtable1.FieldByName('nombre').AsString;
-        global1.gastos[i].precio:=fdtable1.FieldByName('precio').AsInteger;
-  //   global1.gastos[i].foto:=rutajpgcoches+fdtable1.FieldByName('foto').AsString;
+     global1.gastosingresos[i].id:=fdtable1.FieldByName('id').AsInteger;
+     global1.gastosingresos[i].nombre:=fdtable1.FieldByName('nombre').AsString;
+        global1.gastosingresos[i].precio:=fdtable1.FieldByName('precio').AsInteger;
 
                fdtable1.Next;
 
@@ -702,57 +803,9 @@ global1.coches[i].ciudad:=fdtable1.FieldByName('ciudad').AsInteger;
 
 
 
-  (*
-// CARGA PISOS ----------------------------------
-
-  *)
-fdtable1.Active:=false;
-fdtable1.TableName:= 'pisos';
-//FDTable1.Filter := 'nombre='+Quotedstr('BBVA');
-//FDTable1.Filter := 'idcoche>'+Quotedstr('0');
-FDTable1.Filtered := True;
-fdtable1.Active:=true;
-fdtable1.UpdateTransaction;
-
-c:=fdtable1.RecordCount;
-numeropisos:=c;
-//numerocamiones:=c;
-
-for i := 1 to c do begin
 
 
-global1.pisos[i].id:=fdtable1.FieldByName('id').AsInteger;
-global1.pisos[i].portal:=fdtable1.FieldByName('portal').AsInteger;
-global1.pisos[i].planta:=fdtable1.FieldByName('planta').AsInteger;
-global1.pisos[i].calidadbarrio:=fdtable1.FieldByName('calidadbarrio').AsInteger;
-global1.pisos[i].metros:=fdtable1.FieldByName('metros').AsInteger;
-global1.pisos[i].dormitorios:=fdtable1.FieldByName('dormitorios').AsInteger;
-global1.pisos[i].banyos:=fdtable1.FieldByName('banyos').AsInteger;
-global1.pisos[i].calidad:=fdtable1.FieldByName('calidad').AsInteger;
-global1.pisos[i].mes:=fdtable1.FieldByName('mes').AsInteger;
-global1.pisos[i].anyo:=fdtable1.FieldByName('anyo').AsInteger;
-global1.pisos[i].preciocompra:=fdtable1.FieldByName('preciocompra').AsInteger;
-global1.pisos[i].mescompra:=fdtable1.FieldByName('mescompra').AsInteger;
-global1.pisos[i].anyocompra:=fdtable1.FieldByName('anyocompra').AsInteger;
-global1.pisos[i].estado:=fdtable1.FieldByName('estado').AsInteger;
-global1.pisos[i].precio:=fdtable1.FieldByName('precio').AsInteger;
-global1.pisos[i].ciudad:=fdtable1.FieldByName('ciudad').AsInteger;
 
-global1.pisos[i].alquiler:=fdtable1.FieldByName('alquiler').AsInteger;
-global1.pisos[i].propietario:=fdtable1.FieldByName('propietario').AsInteger;
-global1.pisos[i].rentador:=fdtable1.FieldByName('rentador').AsInteger;
-global1.pisos[i].foto2:=fdtable1.FieldByName('foto2').AsInteger;
-global1.pisos[i].foto3:=fdtable1.FieldByName('foto3').AsInteger;
-
-global1.pisos[i].calle:=fdtable1.FieldByName('calle').AsString;
-global1.pisos[i].letra:=fdtable1.FieldByName('letra').AsString;
-global1.pisos[i].barrio:=fdtable1.FieldByName('barrio').AsString;
-global1.pisos[i].foto:=rutajpgpisos+fdtable1.FieldByName('foto').AsString;
-
-               fdtable1.Next;
-
-
-                    end;  // end pisos
 
  (*
  CARGA TRABAJOS---------------------------------------------

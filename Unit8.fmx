@@ -2,13 +2,14 @@ object formvarios: Tformvarios
   Left = 0
   Top = 0
   Caption = 'Form8'
-  ClientHeight = 480
-  ClientWidth = 374
+  ClientHeight = 487
+  ClientWidth = 690
   FormFactor.Width = 320
   FormFactor.Height = 480
   FormFactor.Devices = [Desktop]
   DesignerMasterStyle = 0
   object ImageControl1: TImageControl
+    Align = Top
     Bitmap.PNG = {
       89504E470D0A1A0A0000000D49484452000000FB000000FA0806000000672E31
       03000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
@@ -697,10 +698,9 @@ object formvarios: Tformvarios
       8888387388CC1E11312788CC1E11311710F9FF01F32D38EEC49C694000000000
       49454E44AE426082}
     EnableOpenDialog = False
-    Position.X = 15.000000000000000000
-    Position.Y = 16.000000000000000000
-    Size.Width = 330.000000000000000000
-    Size.Height = 153.000000000000000000
+    Position.Y = 22.000000000000000000
+    Size.Width = 690.000000000000000000
+    Size.Height = 83.000000000000000000
     Size.PlatformDefault = False
     TabOrder = 0
   end
@@ -826,10 +826,10 @@ object formvarios: Tformvarios
       6A6083BAF71FFED250CE8F75E5B94D7DFC854DFDC1973F4D25C4C224FD1F6FF7
       F8C83C263DAB0000000049454E44AE426082}
     EnableOpenDialog = False
-    Position.X = 152.000000000000000000
-    Position.Y = 352.000000000000000000
-    Size.Width = 33.000000000000000000
-    Size.Height = 33.000000000000000000
+    Position.X = 293.000000000000000000
+    Position.Y = 177.000000000000000000
+    Size.Width = 73.000000000000000000
+    Size.Height = 121.000000000000000000
     Size.PlatformDefault = False
     TabOrder = 6
     OnClick = ImageControl5Click
@@ -939,34 +939,49 @@ object formvarios: Tformvarios
     TabOrder = 7
     Visible = False
   end
-  object Button1: TButton
-    Position.X = 128.000000000000000000
-    Position.Y = 208.000000000000000000
-    TabOrder = 15
-    Text = 'Guardar'
-  end
   object Button2: TButton
-    Position.X = 128.000000000000000000
-    Position.Y = 312.000000000000000000
-    TabOrder = 13
+    Align = Top
+    Size.Width = 690.000000000000000000
+    Size.Height = 22.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 12
     Text = 'WEBSITE >'
   end
-  object Button3: TButton
-    Position.X = 128.000000000000000000
-    Position.Y = 240.000000000000000000
-    TabOrder = 12
-    Text = 'PREMIUM'
-  end
-  object Button4: TButton
-    Position.X = 128.000000000000000000
-    Position.Y = 272.000000000000000000
-    TabOrder = 14
-    Text = 'Valorar'
-  end
-  object Button5: TButton
-    Position.X = 128.000000000000000000
-    Position.Y = 176.000000000000000000
-    TabOrder = 19
-    Text = 'Hall of Fame'
+  object Memo1: TMemo
+    Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
+    DataDetectorTypes = []
+    Lines.Strings = (
+      'YproW, a business and earn money game simulation.'
+      '********************************************************'
+      'WELCOME TO YPROW.'
+      'BY OL1 SOFTWARE'
+      '********************************************************'
+      '- IN THIS GAME, YOU MUST EARN MONEY BUYING AND SELLING TO'
+      ' ANOTHER PRICE ITEMS.'
+      ''
+      '- YOU  CAN BUY AND SELL CARS '
+      ''
+      '- ALSO YOU CAN BUY, SELL OR  RENT YOUR HOUSE.'
+      ''
+      '----------------------------'
+      'WHAT ITS THE GAME GOAL?'
+      ''
+      '- MAKE AS MANY MONEY AS YOU CAN'
+      ''
+      '----------------------------'
+      ''
+      'ITS A FREE GAME FOR WINDOWS.'
+      ''
+      'DEVELOPED IN DELPHI 11.'
+      '--'
+      'www.ol1software.com'
+      '')
+    Align = Client
+    Size.Width = 690.000000000000000000
+    Size.Height = 382.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 17
+    Viewport.Width = 670.000000000000000000
+    Viewport.Height = 378.000000000000000000
   end
 end
