@@ -11,7 +11,7 @@ uses
   FireDAC.Stan.Def, FireDAC.Stan.Pool, FireDAC.Phys, FireDAC.Phys.SQLite,
   FireDAC.Phys.SQLiteDef, FireDAC.Stan.ExprFuncs,
   FireDAC.Phys.SQLiteWrapper.Stat, FireDAC.VCLUI.Wait, FireDAC.Comp.Client,
-  FireDAC.Comp.DataSet;
+  FireDAC.Comp.DataSet, System.IOUtils;
 
 type
   TFGlobal1 = class(TForm)
@@ -583,6 +583,8 @@ ruta:=ExcludeTrailingPathDelimiter( ExtractFileDir(ExtractFilePath(ruta)) )+'\';
   rutajpgcoches:=ruta+'graf\cochesjpg\';
     rutajpgpisos:=ruta+'graf\pisosjpg\';
   fglobal1.FDTable1.Connection.Params.Database:=ruta+'baseY.db';
+  fglobal1.FDTable1.Active:=true;
+
 end;
 
 
@@ -756,12 +758,14 @@ begin
 
 // CARGA COCHES ----------------------------------
 
+
 with fglobal1 do Begin
+
 
 fdtable1.Active:=false;
 fdtable1.TableName:= 'coches';
-//FDTable1.Filter := 'nombre='+Quotedstr('BBVA');
-//FDTable1.Filter := 'idcoche>'+Quotedstr('0');
+
+
 FDTable1.Filtered := True;
 fdtable1.Active:=true;
 fdtable1.UpdateTransaction;

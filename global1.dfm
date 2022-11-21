@@ -22,10 +22,11 @@ object FGlobal1: TFGlobal1
       'LockingMode=Normal'
       'CacheSize=1'
       'DriverID=SQLite'
-      'Database=.\baseY.db'
+      'Database=baseY.db'
       'SharedCache=False')
     UpdateOptions.AssignedValues = [uvAutoCommitUpdates]
     UpdateOptions.AutoCommitUpdates = True
+    Connected = True
     Left = 88
     Top = 192
   end
